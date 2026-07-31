@@ -91,6 +91,10 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--ember)}
 .qcard .team{font-size:12px;font-weight:700;color:var(--ember);letter-spacing:.1em;margin-bottom:6px}
 .qcard .qq{font-family:var(--serif);font-weight:700;font-size:17.5px;line-height:1.6}
 .qcard .x{position:absolute;top:8px;right:10px;border:none;background:none;color:var(--ash)}
+.qgroup{grid-column:1/-1;margin-top:20px}
+.qghead{font-family:var(--serif);font-weight:900;font-size:17px;color:var(--ember-lt);border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:10px}
+.qghead span{font-family:var(--sans);font-weight:400;font-size:12.5px;color:var(--ash);margin-left:8px}
+.qgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
 .statline{color:var(--ash);font-size:13.5px;margin-top:8px}
 .done{background:var(--card);border:1px solid var(--ok);border-radius:4px;padding:26px;text-align:center;margin-top:14px}
 .done b{color:#7fc48f}
@@ -151,13 +155,17 @@ const EMOS=['모멸감','소외','수치심','죄책감','무력감','분노','�
   <div class="chips" id="sEmos"></div>
   <div class="row"><button class="btn" id="sEmoBtn" onclick="sendEmos()">감정 보내기</button></div>
 
-  <h2>3. 우리 모둠의 질문</h2>
-  <p class="small">'예/아니오'로 답할 수 없고, 이름이 들어가지 않는 질문 1개.</p>
-  <div class="row"><input type="text" id="sTeam" placeholder="모둠 이름" style="flex:0 1 160px"></div>
+  <h2>3. 나의 질문</h2>
+  <p class="small">'예/아니오'로 답할 수 없고, 이름이 들어가지 않는 질문을 자유롭게 씁니다. 여러 개 등록해도 좋아요 — 우리 모둠 칸에 모입니다.</p>
+  <div class="row"><select id="sTeam" style="flex:0 1 160px">
+    <option value="1모둠">1모둠</option><option value="2모둠">2모둠</option><option value="3모둠">3모둠</option><option value="4모둠">4모둠</option>
+    <option value="5모둠">5모둠</option><option value="6모둠">6모둠</option><option value="7모둠">7모둠</option><option value="8모둠">8모둠</option>
+  </select></div>
   <div class="row">
     <input type="text" id="sQ" placeholder="예: 다수가 웃을 때 함께 웃지 않는 것도 용기일까?" onkeydown="if(event.key==='Enter')sendQ()">
     <button class="btn" onclick="sendQ()">등록</button>
   </div>
+  <p class="small" style="margin-top:8px">등록 후에도 계속 추가할 수 있어요.</p>
 </div>
 
 <!-- ============ 교사 화면 ============ -->
@@ -283,9 +291,9 @@ async function sendEmos(){
 }
 async function sendQ(){
   const v=$('sQ').value.trim();if(!v)return;
-  const{error}=await sb.from('team_questions').insert({class_code:CLASS,team:$('sTeam').value.trim()||'무명 모둠',content:v});
+  const{error}=await sb.from('team_questions').insert({class_code:CLASS,team:$('sTeam').value||'미지정',content:v});
   if(error){toast('전송 실패');return;}
-  $('sQ').value='';toast('모둠 질문 등록 완료');
+  $('sQ').value='';toast('질문이 우리 모둠 칸에 등록됐어요');
 }
 
 /* ---------- 교사 ---------- */
@@ -360,9 +368,21 @@ function renderEmo(){
 }
 function renderQ(){
   const qq=byClass(qs);
-  $('qwall').innerHTML=qq.length?qq.map(q=>
-    `<div class="qcard"><div class="team">${esc(q.team||'무명 모둠')}${selClass==='전체'?' · '+esc(q.class_code)+'반':''}</div><button class="x" onclick="del('team_questions','${q.id}')">✕</button><div class="qq">${esc(q.content)}</div></div>`
-  ).join(''):'<div class="empty">모둠 질문이 여기에 모입니다.</div>';
+  if(!qq.length){$('qwall').innerHTML='<div class="empty">질문이 여기에 모입니다.</div>';return;}
+  const groups={};
+  qq.forEach(q=>{
+    const key=(selClass==='전체'?esc(q.class_code)+'반 · ':'')+esc(q.team||'미지정');
+    (groups[key]=groups[key]||[]).push(q);
+  });
+  const keys=Object.keys(groups).sort((a,b)=>{
+    const na=parseInt(a.replace(/[^0-9]/g,'')),nb=parseInt(b.replace(/[^0-9]/g,''));
+    return (isNaN(na)?999:na)-(isNaN(nb)?999:nb)||a.localeCompare(b);
+  });
+  $('qwall').innerHTML=keys.map(t=>
+    `<div class="qgroup"><div class="qghead">${t}<span>${groups[t].length}개</span></div><div class="qgrid">`+
+    groups[t].map(q=>`<div class="qcard"><button class="x" onclick="del('team_questions','${q.id}')">✕</button><div class="qq">${esc(q.content)}</div></div>`).join('')+
+    `</div></div>`
+  ).join('');
 }
 async function exportCSV(table){
   let query=sb.from(table).select('*').order('created_at');
