@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -100,8 +99,8 @@ h2{font-family:var(--serif);font-weight:900;font-size:22px;margin:10px 0 6px}
 
 <script>
 /* ★ 여기 2줄만 수정 — index.html과 같은 프로젝트 값 사용 ★ */
-const SB_URL  = 'https://xdajkxwszdraibozurih.supabase.co';
-const SB_ANON = 'sb_publishable_eonAHNJmziBkTVlG1QVU5w_fZgSsD0M';
+const SB_URL  = 'https://YOUR-PROJECT.supabase.co';
+const SB_ANON = 'YOUR-ANON-KEY';
 
 const CATS=['학교폭력·따돌림','혐오표현·조리돌림','차별·비하','관계 단절','온라인'];
 const ROLES=['고통','방관','저항','희망'];
@@ -124,7 +123,7 @@ const ROLE_HINT={
 
 <!-- ===== 게이트 ===== -->
 <div class="gate" id="gate">
-  <p class="lead">도덕 시간의 목격 기록이 여기서 상징이 됩니다.<br>반 코드를 입력하고 입장하세요.</p>
+  <p class="lead">도덕 시간의 목격 기록이 여기서 상징이 됩니다.<br>학생은 반 코드 입력, 교사는 로그인만으로 전체 반이 보입니다.</p>
   <div style="margin-top:20px"><input type="text" id="gClass" placeholder="반 코드 (예: 201)" style="text-align:center;font-size:18px"></div>
   <div class="roles">
     <button class="rolebtn" onclick="enter('student')">학생으로 입장<small>목격 카드 고르기 · 상징 등록 · 사전 보기</small></button>
@@ -140,6 +139,7 @@ const ROLE_HINT={
 
 <!-- ===== 본문 ===== -->
 <div class="hide" id="app">
+  <div class="filters" id="classBar" style="margin-bottom:4px"></div>
   <div class="tabs">
     <button class="on" data-t="forgeSec">상징 만들기</button>
     <button data-t="dictSec">사전 펼치기</button>
@@ -193,7 +193,8 @@ const ROLE_HINT={
 <script>
 const sb=supabase.createClient(SB_URL,SB_ANON);
 let CLASS='',ROLE='',isTeacher=false,hasSession=false;
-let cards=[],symbols=[],cardFilter=-1,dictFilter='전체';
+let cards=[],symbols=[],cardFilter=-1,dictFilter='전체',selClass='전체';
+const byClass=arr=>selClass==='전체'?arr:arr.filter(x=>x.class_code===selClass);
 let pickedCard=null,pickedRole=null;
 const $=id=>document.getElementById(id);
 const esc=s=>{const d=document.createElement('div');d.textContent=s;return d.innerHTML;};
@@ -208,7 +209,7 @@ sb.auth.getSession().then(({data})=>{
 function showLogin(){$('loginbox').classList.remove('hide');$('gEmail').focus();}
 async function enter(role){
   const c=$('gClass').value.trim();
-  if(!c){toast('반 코드를 입력하세요');return;}
+  if(role==='student'&&!c){toast('반 코드를 입력하세요');return;}
   if(role==='teacher'&&!hasSession){
     const email=$('gEmail').value.trim(),pw=$('gPw').value;
     if(!email||!pw){toast('이메일과 비밀번호를 입력하세요');return;}
@@ -216,8 +217,9 @@ async function enter(role){
     if(error){toast('로그인 실패 — 계정 정보를 확인하세요');return;}
   }
   CLASS=c;ROLE=role;isTeacher=(role==='teacher');
+  selClass=CLASS||'전체';
   $('gate').classList.add('hide');$('app').classList.remove('hide');
-  $('edition').textContent=`— ${CLASS}반 편 —`;
+  $('edition').textContent=selClass==='전체'?'— 전체 반 편 —':`— ${selClass}반 편 —`;
   if(isTeacher)$('csvBtn').classList.remove('hide');
   init();
 }
@@ -251,28 +253,45 @@ function init(){
     $('roleChips').appendChild(b);
   });
   loadAll();
-  sb.channel('dict-'+CLASS)
-    .on('postgres_changes',{event:'*',schema:'public',table:'symbols',filter:'class_code=eq.'+CLASS},loadAll)
-    .on('postgres_changes',{event:'*',schema:'public',table:'witness_cards',filter:'class_code=eq.'+CLASS},loadAll)
+  sb.channel('dict-all')
+    .on('postgres_changes',{event:'*',schema:'public',table:'symbols'},loadAll)
+    .on('postgres_changes',{event:'*',schema:'public',table:'witness_cards'},loadAll)
     .subscribe();
+}
+function renderClassBar(){
+  const bar=$('classBar');if(!bar)return;
+  if(!isTeacher||CLASS){bar.innerHTML='';return;}   /* 반 코드 없이 들어온 교사에게만 표시 */
+  const set=new Set();
+  cards.forEach(x=>set.add(x.class_code));symbols.forEach(x=>set.add(x.class_code));
+  const list=['전체',...[...set].sort()];
+  if(!list.includes(selClass))selClass='전체';
+  bar.innerHTML=list.map(c=>
+    `<button class="${c===selClass?'on':''}" onclick="pickClass('${esc(c)}')">${c==='전체'?'전체 반':esc(c)+'반'}</button>`
+  ).join('');
+}
+function pickClass(c){
+  selClass=c;
+  $('edition').textContent=selClass==='전체'?'— 전체 반 편 —':`— ${selClass}반 편 —`;
+  renderClassBar();renderCards();renderDict();
 }
 async function loadAll(){
   const[c,s]=await Promise.all([
-    sb.from('witness_cards').select('*').eq('class_code',CLASS).order('created_at'),
-    sb.from('symbols').select('*').eq('class_code',CLASS).order('created_at',{ascending:false})
+    sb.from('witness_cards').select('*').order('created_at'),
+    sb.from('symbols').select('*').order('created_at',{ascending:false})
   ]);
   cards=(c.data||[]).filter(x=>x.approved);  // 학생은 RLS로 승인분만 오지만 교사 세션 대비 이중 필터
   symbols=s.data||[];
-  renderCards();renderDict();
+  renderClassBar();renderCards();renderDict();
 }
 
 /* ---- 목격 카드 ---- */
 function renderCards(){
-  const show=cards.filter(n=>cardFilter<0||n.category===cardFilter);
+  const cs=byClass(cards);
+  const show=cs.filter(n=>cardFilter<0||n.category===cardFilter);
   $('cardgrid').innerHTML=show.length?show.map(n=>
     `<div class="wcard c${n.category} ${pickedCard&&pickedCard.id===n.id?'sel':''}" onclick="pickCard('${n.id}')">
-      <span class="cat">${CATS[n.category]}</span><div>${esc(n.content)}</div></div>`
-  ).join(''):'<div class="empty">'+(cards.length?'이 유형의 카드가 없습니다.':'승인된 목격 카드가 아직 없습니다 — 도덕 수업 데이터가 이곳으로 흘러옵니다.')+'</div>';
+      <span class="cat">${CATS[n.category]}</span>${selClass==='전체'?`<span class="cat" style="float:right;background:#1c1b18">${esc(n.class_code)}반</span>`:''}<div>${esc(n.content)}</div></div>`
+  ).join(''):'<div class="empty">'+(cs.length?'이 유형의 카드가 없습니다.':'승인된 목격 카드가 아직 없습니다 — 도덕 수업 데이터가 이곳으로 흘러옵니다.')+'</div>';
 }
 function pickCard(id){
   pickedCard=cards.find(n=>n.id===id)||null;
@@ -283,11 +302,13 @@ function pickCard(id){
 /* ---- 상징 등재 ---- */
 async function submitSymbol(){
   const name=$('fName').value.trim(),mean=$('fMean').value.trim();
+  const cc=CLASS||(selClass!=='전체'?selClass:'');
+  if(!cc){toast('반을 먼저 선택해 주세요 (전체 반 상태에서는 등재할 수 없습니다)');return;}
   if(!pickedRole){toast('상징의 자리를 골라주세요');return;}
   if(!name){toast('상징 이름을 입력하세요');return;}
   if(!mean){toast('뜻풀이를 입력하세요');return;}
   const{error}=await sb.from('symbols').insert({
-    class_code:CLASS,card_id:pickedCard?pickedCard.id:null,
+    class_code:cc,card_id:pickedCard?pickedCard.id:null,
     name,role:pickedRole,meaning:mean,author:$('fAuthor').value.trim()||'익명'
   });
   if(error){toast('등재 실패 — 다시 시도해 주세요');return;}
@@ -298,7 +319,8 @@ async function submitSymbol(){
 
 /* ---- 사전 ---- */
 function renderDict(){
-  const show=symbols.filter(s=>dictFilter==='전체'||s.role===dictFilter);
+  const ss=byClass(symbols);
+  const show=ss.filter(s=>dictFilter==='전체'||s.role===dictFilter);
   const srcOf=s=>{const c=cards.find(x=>x.id===s.card_id);return c?`<div class="src">출처 · ${esc(c.content)}</div>`:'';};
   $('dict').innerHTML=show.length?show.map(s=>
     `<div class="entry">
@@ -307,23 +329,24 @@ function renderDict(){
       <span class="pos r${s.role}">${s.role}의 상징</span>
       <div class="mean">${esc(s.meaning)}</div>
       ${srcOf(s)}
-      <div class="by">${esc(s.author||'익명')} 지음</div>
+      <div class="by">${esc(s.author||'익명')} 지음${selClass==='전체'?' · '+esc(s.class_code)+'반':''}</div>
     </div>`
-  ).join(''):'<div class="empty">'+(symbols.length?'이 자리의 상징이 아직 없습니다.':'아직 등재된 상징이 없습니다 — 첫 표제어의 주인이 되어보세요.')+'</div>';
-  $('dictCount').textContent=symbols.length?`등재 ${symbols.length}개`:'';
+  ).join(''):'<div class="empty">'+(ss.length?'이 자리의 상징이 아직 없습니다.':'아직 등재된 상징이 없습니다 — 첫 표제어의 주인이 되어보세요.')+'</div>';
+  $('dictCount').textContent=ss.length?`등재 ${ss.length}개`:'';
 }
 async function delSym(id){await sb.from('symbols').delete().eq('id',id);loadAll();}
 async function exportCSV(){
-  if(!symbols.length){toast('내보낼 데이터가 없습니다');return;}
-  const rows=symbols.map(s=>{
+  const ss=byClass(symbols);
+  if(!ss.length){toast('내보낼 데이터가 없습니다');return;}
+  const rows=ss.map(s=>{
     const c=cards.find(x=>x.id===s.card_id);
-    return{상징:s.name,자리:s.role,뜻풀이:s.meaning,출처_목격카드:c?c.content:'',지은이:s.author,등재일:s.created_at};
+    return{반:s.class_code,상징:s.name,자리:s.role,뜻풀이:s.meaning,출처_목격카드:c?c.content:'',지은이:s.author,등재일:s.created_at};
   });
   const cols=Object.keys(rows[0]);
   const csv='\uFEFF'+cols.join(',')+'\n'+rows.map(r=>cols.map(c=>`"${String(r[c]??'').replace(/"/g,'""')}"`).join(',')).join('\n');
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
-  a.download=`상징사전_${CLASS}.csv`;a.click();
+  a.download=`상징사전_${selClass==='전체'?'all':selClass}.csv`;a.click();
 }
 </script>
 </body>
