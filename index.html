@@ -102,8 +102,8 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--ember)}
 <script>
 /* ★ 여기 2줄만 수정하면 배포 준비 완료 ★
    교사 계정은 Supabase 대시보드 → Authentication → Users에서 생성 */
-const SB_URL  = 'https://xdajkxwszdraibozurih.supabase.co';
-const SB_ANON = 'sb_publishable_eonAHNJmziBkTVlG1QVU5w_fZgSsD0M';
+const SB_URL  = 'https://YOUR-PROJECT.supabase.co';
+const SB_ANON = 'YOUR-ANON-KEY';
 
 const CATS=['학교폭력·따돌림','혐오표현·조리돌림','차별·비하','관계 단절','온라인'];
 const EMOS=['모멸감','소외','수치심','죄책감','무력감','분노','두려움','외면하고 싶음','연민','연대감','부끄러운 안도'];
@@ -114,11 +114,12 @@ const EMOS=['모멸감','소외','수치심','죄책감','무력감','분노','�
   <div class="gatebox">
     <div class="tag">도덕 수업 참여 공간</div>
     <h1>우리 시선 속의 전쟁</h1>
-    <p class="sub">학생은 반 코드를 입력하고 입장하세요.<br>교사는 로그인만 하면 전체 반이 보입니다.</p>
+    <p class="sub">학생은 반 코드를 입력하고 입장하세요.</p>
     <div style="margin-top:22px"><input type="text" id="gClass" placeholder="반 코드 (예: 201)" style="text-align:center;font-size:18px"></div>
     <div class="roles">
-      <button class="rolebtn" onclick="enter('student')">학생으로 입장<small>목격 카드 · 감정 · 모둠 질문 제출</small></button>
-      <button class="rolebtn" onclick="showLogin()">교사로 입장<small>승인 · 보드 · 집계 · 내보내기</small></button>
+      <button class="rolebtn" onclick="enter('student')">학생 입장<small>목격 카드 · 감정 · 모둠 질문 제출</small></button>
+      <button class="rolebtn" onclick="goView()">교사 결과 보기<small>로그인 없이 학급 결과 열람 (읽기 전용)</small></button>
+      <button class="rolebtn" onclick="showLogin()">관리자 모드<small>승인 · 전체 반 관리 · 내보내기 (로그인)</small></button>
     </div>
     <div class="hide" id="loginbox" style="margin-top:10px;display:grid;gap:8px">
       <input type="text" id="gEmail" placeholder="교사 이메일" autocomplete="username">
@@ -233,6 +234,10 @@ sb.auth.getSession().then(({data})=>{
     $('sessionHint').textContent='로그인 유지 중 — 이메일·비밀번호 없이 바로 입장됩니다';}
 });
 function showLogin(){$('loginbox').classList.remove('hide');($('gEmail')).focus();}
+function goView(){
+  const c=$('gClass').value.trim();
+  location.href='view.html'+(c?'?class='+encodeURIComponent(c):'');
+}
 async function enter(role){
   const c=$('gClass').value.trim();
   if(role==='student'&&!c){toast('반 코드를 입력하세요');return;}
