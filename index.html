@@ -1,0 +1,355 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>우리 시선 속의 전쟁</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@600;900&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --ink:#1a1a1d; --smoke:#57575c; --ash:#9c9ca1;
+  --paper:#f7f6f2; --card:#232327; --line:#3a3a3f;
+  --ember:#b3271c; --ember-lt:#ff6b5e; --ok:#3f7d4e;
+  --serif:'Noto Serif KR',serif; --sans:'Noto Sans KR',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);background:var(--ink);color:var(--paper);min-height:100vh;font-size:16px;line-height:1.65}
+.wrap{max-width:960px;margin:0 auto;padding:26px 18px 80px}
+.tag{font-size:12px;letter-spacing:.24em;color:var(--ember-lt);font-weight:700;margin-bottom:10px}
+h1{font-family:var(--serif);font-weight:900;font-size:clamp(24px,4.4vw,38px);line-height:1.35}
+h2{font-family:var(--serif);font-weight:700;font-size:20px;margin:34px 0 10px;padding-left:11px;border-left:4px solid var(--ember)}
+.sub{color:var(--ash);font-size:14.5px;margin-top:8px}
+.hide{display:none!important}
+button{font-family:var(--sans);cursor:pointer}
+.btn{background:var(--ember);color:#fff;border:none;font-weight:700;font-size:15px;padding:12px 22px;border-radius:2px}
+.btn:hover{background:#8f1f16}
+.btn.ghost{background:none;border:1px solid var(--line);color:var(--paper)}
+.btn.ghost:hover{border-color:var(--ash)}
+.btn.ok{background:var(--ok)}
+.btn:disabled{background:var(--line);color:#77777c;cursor:default}
+input[type=text],input[type=password],select,textarea{font-family:var(--sans);font-size:15.5px;padding:12px 14px;background:var(--card);color:var(--paper);border:1px solid var(--line);border-radius:2px;width:100%}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--ember)}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.row>*{flex:1;min-width:150px}
+.row .btn{flex:0 0 auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:4px;padding:20px;margin:12px 0}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--paper);color:var(--ink);font-weight:700;padding:13px 24px;border-radius:30px;box-shadow:0 6px 20px rgba(0,0,0,.4);z-index:99;animation:up .25s}
+@keyframes up{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
+
+/* 역할 선택 */
+.gate{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.gatebox{max-width:430px;width:100%;text-align:center}
+.gatebox h1{margin-bottom:6px}
+.gatebox .roles{display:grid;gap:12px;margin-top:30px}
+.rolebtn{background:var(--card);border:1px solid var(--line);color:var(--paper);padding:22px;border-radius:4px;font-size:17px;font-weight:700;transition:.15s}
+.rolebtn:hover{border-color:var(--ember)}
+.rolebtn small{display:block;font-weight:400;color:var(--ash);font-size:13px;margin-top:5px}
+.pinrow{display:flex;gap:8px;margin-top:10px}
+
+/* 칩 */
+.chips{display:flex;flex-wrap:wrap;gap:9px;margin-top:12px}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--paper);padding:9px 17px;font-size:14.5px;border-radius:22px;transition:.12s}
+.chip:hover{border-color:var(--ash)}
+.chip.pick{background:var(--ember);border-color:var(--ember)}
+.small{font-size:13px;color:var(--ash)}
+.rules{background:var(--card);border-left:4px solid var(--smoke);padding:12px 16px;font-size:14px;margin-top:12px;color:var(--ash)}
+.rules b{color:var(--ember-lt)}
+
+/* 교사 탭 */
+.ttabs{display:flex;gap:6px;margin-top:20px;overflow-x:auto;border-bottom:1px solid var(--line);padding-bottom:0}
+.ttabs button{background:none;border:none;color:var(--ash);font-weight:700;font-size:15px;padding:12px 16px;border-bottom:3px solid transparent;white-space:nowrap}
+.ttabs button.on{color:var(--paper);border-bottom-color:var(--ember)}
+.badge{background:var(--ember);color:#fff;font-size:12px;font-weight:700;border-radius:10px;padding:1px 8px;margin-left:5px}
+.tsec{display:none;padding-top:8px}
+.tsec.on{display:block}
+
+/* 보드 */
+.board{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin-top:16px}
+.note{background:var(--paper);color:var(--ink);padding:15px 17px;border-radius:3px;font-size:15px;animation:pop .25s;position:relative}
+@keyframes pop{from{transform:scale(.93);opacity:0}to{transform:none;opacity:1}}
+.note .cat{display:inline-block;font-size:11px;font-weight:700;color:#fff;background:var(--smoke);padding:2px 9px;border-radius:10px;margin-bottom:7px}
+.note.c0 .cat{background:#7a2020}.note.c1 .cat{background:#54442a}.note.c2 .cat{background:#2e4a4a}.note.c3 .cat{background:#3d3d5c}.note.c4 .cat{background:#4a3050}
+.note .acts{display:flex;gap:6px;margin-top:10px}
+.note .acts button{font-size:12.5px;font-weight:700;padding:6px 12px;border-radius:2px;border:none}
+.approve{background:var(--ok);color:#fff}.reject{background:#ddd;color:var(--ink)}
+.note .x{position:absolute;top:6px;right:8px;border:none;background:none;color:var(--ash);font-size:13px}
+.empty{color:#55555a;padding:34px 0;text-align:center;grid-column:1/-1}
+.filters{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.filters button{background:none;border:1px solid var(--line);color:var(--ash);font-size:13px;font-weight:700;padding:6px 14px;border-radius:16px}
+.filters button.on{background:var(--paper);color:var(--ink);border-color:var(--paper)}
+
+/* 감정 지도 */
+.emap{display:flex;flex-wrap:wrap;gap:14px 22px;align-items:center;margin-top:26px;min-height:120px}
+.eword{font-family:var(--serif);font-weight:700;color:var(--ash)}
+.eword b{color:var(--ember-lt);font-family:var(--sans);font-size:13px;margin-left:5px}
+.eword.hot{color:var(--paper)}
+
+/* 질문 갤러리 */
+.qwall{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px;margin-top:16px}
+.qcard{background:var(--paper);color:var(--ink);padding:20px;border-radius:3px;position:relative;animation:pop .25s}
+.qcard .team{font-size:12px;font-weight:700;color:var(--ember);letter-spacing:.1em;margin-bottom:6px}
+.qcard .qq{font-family:var(--serif);font-weight:700;font-size:17.5px;line-height:1.6}
+.qcard .x{position:absolute;top:8px;right:10px;border:none;background:none;color:var(--ash)}
+.statline{color:var(--ash);font-size:13.5px;margin-top:8px}
+.done{background:var(--card);border:1px solid var(--ok);border-radius:4px;padding:26px;text-align:center;margin-top:14px}
+.done b{color:#7fc48f}
+</style>
+</head>
+<body>
+
+<!-- ============ 설정 ============ -->
+<script>
+/* ★ 여기 2줄만 수정하면 배포 준비 완료 ★
+   교사 계정은 Supabase 대시보드 → Authentication → Users에서 생성 */
+const SB_URL  = 'https://xdajkxwszdraibozurih.supabase.co/rest/v1/';
+const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhkYWpreHdzemRyYWlib3p1cmloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0OTkwNzUsImV4cCI6MjEwMTA3NTA3NX0.GLW1AwIVgU6_cBg1R9YnmCB6XampipCS';
+
+const CATS=['학교폭력·따돌림','혐오표현·조리돌림','차별·비하','관계 단절','온라인'];
+const EMOS=['모멸감','소외','수치심','죄책감','무력감','분노','두려움','외면하고 싶음','연민','연대감','부끄러운 안도'];
+</script>
+
+<!-- ============ 역할 선택 ============ -->
+<div class="gate" id="gate">
+  <div class="gatebox">
+    <div class="tag">도덕 수업 참여 공간</div>
+    <h1>우리 시선 속의 전쟁</h1>
+    <p class="sub">반 코드를 입력하고 입장하세요.</p>
+    <div style="margin-top:22px"><input type="text" id="gClass" placeholder="반 코드 (예: 201)" style="text-align:center;font-size:18px"></div>
+    <div class="roles">
+      <button class="rolebtn" onclick="enter('student')">학생으로 입장<small>목격 카드 · 감정 · 모둠 질문 제출</small></button>
+      <button class="rolebtn" onclick="showLogin()">교사로 입장<small>승인 · 보드 · 집계 · 내보내기</small></button>
+    </div>
+    <div class="hide" id="loginbox" style="margin-top:10px;display:grid;gap:8px">
+      <input type="text" id="gEmail" placeholder="교사 이메일" autocomplete="username">
+      <input type="password" id="gPw" placeholder="비밀번호" autocomplete="current-password" onkeydown="if(event.key==='Enter')enter('teacher')">
+      <button class="btn" onclick="enter('teacher')">로그인</button>
+      <p class="small" id="sessionHint"></p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 학생 화면 ============ -->
+<div class="wrap hide" id="student">
+  <div class="tag">학생 참여 · <span id="sClass"></span>반</div>
+  <h1>당신은 무엇을 보았습니까?</h1>
+  <div class="rules"><b>약속</b> — ① 이름은 쓰지 않습니다 ② 상황만 한 문장으로 ③ 쓰기 힘든 경험은 뉴스·드라마 장면으로 대체해도 됩니다. 제출한 글은 선생님 확인 후 화면에 게시됩니다.</div>
+
+  <h2>1. 목격 카드 붙이기</h2>
+  <p class="small">내가 목격했거나 스쳐 지나간 '작은 전쟁'</p>
+  <div class="row">
+    <select id="sCat"><option value="0">학교폭력·따돌림</option><option value="1">혐오표현·조리돌림</option><option value="2">차별·비하</option><option value="3">관계 단절</option><option value="4">온라인</option></select>
+  </div>
+  <div class="row">
+    <input type="text" id="sTxt" placeholder="예: 급식실에서 늘 혼자 앉는 아이 옆을 모두가 그냥 지나쳤다" onkeydown="if(event.key==='Enter')sendCard()">
+    <button class="btn" onclick="sendCard()">제출</button>
+  </div>
+
+  <h2>2. 그 장면의 감정에 이름 붙이기</h2>
+  <p class="small">최대 3개까지 고르고 보내기를 누르세요.</p>
+  <div class="chips" id="sEmos"></div>
+  <div class="row"><button class="btn" id="sEmoBtn" onclick="sendEmos()">감정 보내기</button></div>
+
+  <h2>3. 우리 모둠의 질문</h2>
+  <p class="small">'예/아니오'로 답할 수 없고, 이름이 들어가지 않는 질문 1개.</p>
+  <div class="row"><input type="text" id="sTeam" placeholder="모둠 이름" style="flex:0 1 160px"></div>
+  <div class="row">
+    <input type="text" id="sQ" placeholder="예: 다수가 웃을 때 함께 웃지 않는 것도 용기일까?" onkeydown="if(event.key==='Enter')sendQ()">
+    <button class="btn" onclick="sendQ()">등록</button>
+  </div>
+</div>
+
+<!-- ============ 교사 화면 ============ -->
+<div class="wrap hide" id="teacher">
+  <div class="tag">교사 화면 · <span id="tClass"></span>반 · 실시간</div>
+  <h1>우리 시선 속의 전쟁 — 진행 보드</h1>
+  <div class="ttabs">
+    <button class="on" data-t="tWait">승인 대기<span class="badge hide" id="waitBadge">0</span></button>
+    <button data-t="tBoard">목격 보드</button>
+    <button data-t="tEmo">감정 지도</button>
+    <button data-t="tQ">모둠 질문</button>
+    <button data-t="tExport">데이터</button>
+  </div>
+
+  <div class="tsec on" id="tWait">
+    <p class="sub">학생 제출 글이 여기 먼저 도착합니다. 승인하면 목격 보드에 게시됩니다.</p>
+    <div class="board" id="waitBoard"><div class="empty">대기 중인 카드가 없습니다.</div></div>
+  </div>
+
+  <div class="tsec" id="tBoard">
+    <div class="filters" id="tFilters">
+      <button class="on" data-f="-1">전체</button><button data-f="0">학교폭력</button><button data-f="1">혐오표현</button><button data-f="2">차별·비하</button><button data-f="3">관계 단절</button><button data-f="4">온라인</button>
+    </div>
+    <div class="board" id="okBoard"><div class="empty">승인된 카드가 여기에 쌓입니다.</div></div>
+  </div>
+
+  <div class="tsec" id="tEmo">
+    <p class="sub">많이 선택된 감정일수록 글자가 커집니다.</p>
+    <div class="emap" id="emap"><div class="empty">아직 감정 투표가 없습니다.</div></div>
+    <p class="statline" id="emoStat"></p>
+  </div>
+
+  <div class="tsec" id="tQ">
+    <div class="qwall" id="qwall"><div class="empty">모둠 질문이 여기에 모입니다.</div></div>
+  </div>
+
+  <div class="tsec" id="tExport">
+    <div class="card">
+      <b>CSV 내보내기</b>
+      <p class="small" style="margin:6px 0 14px">이 반의 모든 데이터를 파일로 저장합니다 — 도덕 선생님 공유용 및 미술 시간 '학급 상징 사전' 원재료.</p>
+      <div class="row" style="margin:0">
+        <button class="btn ghost" onclick="exportCSV('witness_cards')">목격 카드</button>
+        <button class="btn ghost" onclick="exportCSV('emotion_votes')">감정 투표</button>
+        <button class="btn ghost" onclick="exportCSV('team_questions')">모둠 질문</button>
+      </div>
+    </div>
+    <div class="card">
+      <b>학생 접속 링크</b>
+      <p class="small" style="margin:6px 0 14px">이 링크를 쿨메신저·QR로 배포하면 반 코드가 자동 입력됩니다.</p>
+      <div class="row" style="margin:0"><input type="text" id="stuLink" readonly><button class="btn" onclick="copyLink()">복사</button></div>
+    </div>
+    <div class="card">
+      <b>계정</b>
+      <p class="small" style="margin:6px 0 14px">이 기기에 로그인이 유지됩니다. 공용 컴퓨터라면 수업 후 로그아웃하세요.</p>
+      <button class="btn ghost" onclick="logout()">로그아웃</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const sb=supabase.createClient(SB_URL,SB_ANON);
+let CLASS='',ROLE='';
+const $=id=>document.getElementById(id);
+const esc=s=>{const d=document.createElement('div');d.textContent=s;return d.innerHTML;};
+function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),1900);}
+
+/* ---------- 입장 ---------- */
+const params=new URLSearchParams(location.search);
+if(params.get('class'))$('gClass').value=params.get('class');
+let hasSession=false;
+sb.auth.getSession().then(({data})=>{
+  if(data.session){hasSession=true;
+    $('sessionHint').textContent='로그인 유지 중 — 이메일·비밀번호 없이 바로 입장됩니다';}
+});
+function showLogin(){$('loginbox').classList.remove('hide');($('gEmail')).focus();}
+async function enter(role){
+  const c=$('gClass').value.trim();
+  if(!c){toast('반 코드를 입력하세요');return;}
+  if(role==='teacher'&&!hasSession){
+    const email=$('gEmail').value.trim(),pw=$('gPw').value;
+    if(!email||!pw){toast('이메일과 비밀번호를 입력하세요');return;}
+    const{error}=await sb.auth.signInWithPassword({email,password:pw});
+    if(error){toast('로그인 실패 — 계정 정보를 확인하세요');return;}
+  }
+  CLASS=c;ROLE=role;
+  $('gate').classList.add('hide');
+  if(role==='student'){$('student').classList.remove('hide');$('sClass').textContent=c;initStudent();}
+  else{$('teacher').classList.remove('hide');$('tClass').textContent=c;initTeacher();}
+}
+async function logout(){await sb.auth.signOut();location.reload();}
+
+/* ---------- 학생 ---------- */
+let myEmos=[];
+function initStudent(){
+  EMOS.forEach(e=>{
+    const b=document.createElement('button');b.className='chip';b.textContent=e;
+    b.onclick=()=>{
+      if(b.classList.contains('pick')){b.classList.remove('pick');myEmos=myEmos.filter(x=>x!==e);}
+      else if(myEmos.length<3){b.classList.add('pick');myEmos.push(e);}
+      else toast('최대 3개까지 선택할 수 있어요');
+    };
+    $('sEmos').appendChild(b);
+  });
+}
+async function sendCard(){
+  const v=$('sTxt').value.trim();if(!v)return;
+  const{error}=await sb.from('witness_cards').insert({class_code:CLASS,category:+$('sCat').value,content:v});
+  if(error){toast('전송 실패 — 다시 시도해 주세요');return;}
+  $('sTxt').value='';toast('제출 완료 — 선생님 확인 후 게시됩니다');
+}
+async function sendEmos(){
+  if(!myEmos.length){toast('감정을 먼저 골라주세요');return;}
+  const rows=myEmos.map(e=>({class_code:CLASS,emotion:e}));
+  const{error}=await sb.from('emotion_votes').insert(rows);
+  if(error){toast('전송 실패');return;}
+  $('sEmoBtn').disabled=true;$('sEmoBtn').textContent='보내기 완료';
+  toast('감정이 학급 지도에 더해졌어요');
+}
+async function sendQ(){
+  const v=$('sQ').value.trim();if(!v)return;
+  const{error}=await sb.from('team_questions').insert({class_code:CLASS,team:$('sTeam').value.trim()||'무명 모둠',content:v});
+  if(error){toast('전송 실패');return;}
+  $('sQ').value='';toast('모둠 질문 등록 완료');
+}
+
+/* ---------- 교사 ---------- */
+let cards=[],votes=[],qs=[],filter=-1;
+function initTeacher(){
+  document.querySelectorAll('.ttabs button').forEach(b=>b.onclick=()=>{
+    document.querySelectorAll('.ttabs button').forEach(x=>x.classList.remove('on'));
+    document.querySelectorAll('.tsec').forEach(s=>s.classList.remove('on'));
+    b.classList.add('on');$(b.dataset.t).classList.add('on');
+  });
+  document.querySelectorAll('#tFilters button').forEach(b=>b.onclick=()=>{
+    document.querySelectorAll('#tFilters button').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');filter=+b.dataset.f;renderBoards();
+  });
+  const link=location.origin+location.pathname+'?class='+encodeURIComponent(CLASS);
+  $('stuLink').value=link;
+  loadAll();
+  /* 실시간 구독 */
+  sb.channel('room-'+CLASS)
+    .on('postgres_changes',{event:'*',schema:'public',table:'witness_cards',filter:'class_code=eq.'+CLASS},loadAll)
+    .on('postgres_changes',{event:'*',schema:'public',table:'emotion_votes',filter:'class_code=eq.'+CLASS},loadAll)
+    .on('postgres_changes',{event:'*',schema:'public',table:'team_questions',filter:'class_code=eq.'+CLASS},loadAll)
+    .subscribe();
+}
+async function loadAll(){
+  const[c,e,q]=await Promise.all([
+    sb.from('witness_cards').select('*').eq('class_code',CLASS).order('created_at'),
+    sb.from('emotion_votes').select('*').eq('class_code',CLASS),
+    sb.from('team_questions').select('*').eq('class_code',CLASS).order('created_at')
+  ]);
+  cards=c.data||[];votes=e.data||[];qs=q.data||[];
+  renderBoards();renderEmo();renderQ();
+}
+function noteHTML(n,acts){
+  return `<div class="note c${n.category}"><span class="cat">${CATS[n.category]}</span>${acts}<div>${esc(n.content)}</div>`+
+    (acts===''?`<div class="acts"><button class="approve" onclick="approve('${n.id}')">승인</button><button class="reject" onclick="del('witness_cards','${n.id}')">숨김</button></div>`:'')+`</div>`;
+}
+function renderBoards(){
+  const wait=cards.filter(n=>!n.approved);
+  const ok=cards.filter(n=>n.approved&&(filter<0||n.category===filter));
+  $('waitBoard').innerHTML=wait.length?wait.map(n=>noteHTML(n,'')).join(''):'<div class="empty">대기 중인 카드가 없습니다.</div>';
+  $('okBoard').innerHTML=ok.length?ok.map(n=>noteHTML(n,`<button class="x" onclick="del('witness_cards','${n.id}')">✕</button>`)).join(''):'<div class="empty">승인된 카드가 여기에 쌓입니다.</div>';
+  const w=wait.length;$('waitBadge').textContent=w;$('waitBadge').classList.toggle('hide',!w);
+}
+async function approve(id){await sb.from('witness_cards').update({approved:true}).eq('id',id);loadAll();}
+async function del(table,id){await sb.from(table).delete().eq('id',id);loadAll();}
+function renderEmo(){
+  const m={};votes.forEach(v=>m[v.emotion]=(m[v.emotion]||0)+1);
+  const entries=Object.entries(m).sort((a,b)=>b[1]-a[1]);
+  $('emap').innerHTML=entries.length?entries.map(([e,n])=>
+    `<span class="eword ${n>=3?'hot':''}" style="font-size:${Math.min(18+n*4,58)}px">${esc(e)}<b>${n}</b></span>`
+  ).join(''):'<div class="empty">아직 감정 투표가 없습니다.</div>';
+  $('emoStat').textContent=votes.length?`총 ${votes.length}표 · ${entries.length}개 감정`:'';
+}
+function renderQ(){
+  $('qwall').innerHTML=qs.length?qs.map(q=>
+    `<div class="qcard"><div class="team">${esc(q.team||'무명 모둠')}</div><button class="x" onclick="del('team_questions','${q.id}')">✕</button><div class="qq">${esc(q.content)}</div></div>`
+  ).join(''):'<div class="empty">모둠 질문이 여기에 모입니다.</div>';
+}
+async function exportCSV(table){
+  const{data}=await sb.from(table).select('*').eq('class_code',CLASS).order('created_at');
+  if(!data||!data.length){toast('내보낼 데이터가 없습니다');return;}
+  const cols=Object.keys(data[0]);
+  const csv='\uFEFF'+cols.join(',')+'\n'+data.map(r=>cols.map(c=>`"${String(r[c]??'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download=`${table}_${CLASS}.csv`;a.click();
+}
+function copyLink(){navigator.clipboard.writeText($('stuLink').value).then(()=>toast('링크 복사 완료'));}
+</script>
+</body>
+</html>
