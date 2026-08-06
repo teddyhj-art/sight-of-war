@@ -87,6 +87,13 @@ textarea{resize:vertical}
 .empty{color:#55555a;padding:36px 0;text-align:center}
 .guide{border:1px dashed var(--line);border-radius:4px;padding:14px 16px;margin-top:16px;font-size:13.5px;color:var(--ash)}
 .guide b{color:var(--ember-lt)}
+.steps3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0 12px}
+@media(max-width:700px){.steps3{grid-template-columns:1fr}}
+.steps3 span{background:var(--card);border:1px solid var(--line);border-radius:3px;padding:8px 11px;font-size:12.5px;color:var(--paper)}
+.steps3 span b:first-child{display:inline-block;width:18px;height:18px;line-height:18px;text-align:center;background:var(--ember);color:#fff;border-radius:50%;font-size:11px;margin-right:6px}
+.padbtn{display:inline-block;background:#f5c518;color:#1a1a1d;font-weight:700;font-size:14px;padding:10px 20px;border-radius:22px;text-decoration:none}
+.padbtn:hover{background:#e0b30f}
+.padbtn.sm{font-size:12.5px;padding:5px 14px;border-radius:14px;margin-left:6px}
 .stat{color:var(--ash);font-size:13.5px;margin-top:10px}
 </style>
 </head>
@@ -94,12 +101,14 @@ textarea{resize:vertical}
 
 <script>
 /* ★ 이 2줄만 실제 값으로 ★ */
-const SB_URL  = 'https://xdajkxwszdraibozurih.supabase.co';
-const SB_ANON = 'sb_publishable_eonAHNJmziBkTVlG1QVU5w_fZgSsD0M';
-  
+const SB_URL  = 'https://YOUR-PROJECT.supabase.co';
+const SB_ANON = 'YOUR-ANON-KEY';
+
 const CATS=['학교폭력·따돌림','혐오표현·조리돌림','차별·비하','관계 단절','온라인'];
 const EMOS=['모멸감','소외','수치심','죄책감','무력감','분노','두려움','외면하고 싶음','연민','연대감','부끄러운 안도'];
 const TEAMS=['1모둠','2모둠','3모둠','4모둠','5모둠','6모둠','7모둠','8모둠'];
+/* 패들렛 보드 주소 — 바꾸려면 이 줄만 수정 */
+const PADLET_URL='https://padlet.com/teddyhj/padlet-221qhikpqv078vt7';
 </script>
 
 <!-- ===== 게이트 ===== -->
@@ -200,7 +209,15 @@ const TEAMS=['1모둠','2모둠','3모둠','4모둠','5모둠','6모둠','7모�
   </div>
 
   <div class="sec on" id="rTeams">
-    <div class="guide">📌 <b>다음 활동</b> — 우리 모둠 카드의 <b>[모둠 내용 복사]</b>를 누르면 모둠 전체 기록이 복사됩니다. 패들렛에 붙여넣어 <b>모둠 프레젠테이션</b>을 만들어 보세요.</div>
+    <div class="guide">
+      📌 <b>다음 활동 — 모둠 프레젠테이션 만들기</b>
+      <div class="steps3">
+        <span><b>1</b> 우리 모둠 카드의 <b>[모둠 내용 복사]</b> 누르기</span>
+        <span><b>2</b> <b>[패들렛 열기]</b> → 우리 모둠 칸에 붙여넣기</span>
+        <span><b>3</b> 정리 후 <b>프레젠테이션(슬라이드쇼)</b>로 발표</span>
+      </div>
+      <a class="padbtn" href="#" id="padTop" target="_blank" rel="noopener">패들렛 열기 ↗</a>
+    </div>
     <div id="teamWrap"></div>
   </div>
 
@@ -331,10 +348,12 @@ function wsHTML(r){
   </div>`;
 }
 function renderTeams(){
+  $('padTop').href=PADLET_URL;
   const g=teamGroups(),keys=Object.keys(g).sort((a,b)=>a.localeCompare(b,'ko',{numeric:true}));
   $('teamWrap').innerHTML=keys.length?keys.map(k=>
     `<div class="team"><div class="thead"><b>${esc(k)}</b><span class="cnt">${g[k].length}명 기록</span>
-      <button class="cp" onclick="copyTeam('${esc(k)}')">모둠 내용 복사</button></div>
+      <button class="cp" onclick="copyTeam('${esc(k)}')">모둠 내용 복사</button>
+      <a class="padbtn sm" href="${PADLET_URL}" target="_blank" rel="noopener">패들렛 ↗</a></div>
       <div class="tbody">${g[k].map(wsHTML).join('')}</div></div>`).join('')
     :'<div class="empty">아직 제출된 학습지가 없습니다.</div>';
 }
@@ -349,7 +368,10 @@ function copyTeam(k){
     if(r.questions)t+=`   · 질문: ${r.questions.split('\n').filter(Boolean).join(' / ')}\n`;
     t+='\n';
   });
-  navigator.clipboard.writeText(t).then(()=>toast('복사 완료 — 패들렛에 붙여넣으세요')).catch(()=>toast('복사 실패'));
+  navigator.clipboard.writeText(t).then(()=>{
+    toast('복사 완료 — 패들렛에 붙여넣으세요');
+    if(confirm(`${k} 내용을 복사했습니다.\n패들렛을 새 창으로 열까요?`))window.open(PADLET_URL,'_blank');
+  }).catch(()=>toast('복사 실패'));
 }
 async function delRow(id){await sb.from('worksheets').delete().eq('id',id);load();}
 function renderEmo(){
