@@ -8,10 +8,11 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{--ink:#1a1a1d;--smoke:#57575c;--ash:#9c9ca1;--paper:#f7f6f2;--card:#232327;--line:#3a3a3f;
---ember:#b3271c;--ember-lt:#ff6b5e;--ok:#3f7d4e;--serif:'Noto Serif KR',serif;--sans:'Noto Sans KR',sans-serif}
+--ember:#b3271c;--ember-lt:#ff6b5e;--a:#5b8c8c;--b:#d1584c;
+--serif:'Noto Serif KR',serif;--sans:'Noto Sans KR',sans-serif}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:var(--sans);background:var(--ink);color:var(--paper);min-height:100vh;font-size:16px;line-height:1.6}
-.wrap{max-width:860px;margin:0 auto;padding:24px 18px 90px}
+.wrap{max-width:900px;margin:0 auto;padding:24px 18px 90px}
 .hide{display:none!important}
 button{font-family:var(--sans);cursor:pointer}
 .tag{font-size:12px;letter-spacing:.24em;color:var(--ember-lt);font-weight:700;margin-bottom:8px}
@@ -27,30 +28,30 @@ textarea{resize:vertical}
 .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
 .row>*{flex:1;min-width:150px}.row .btn{flex:0 0 auto}
 .small{font-size:13px;color:var(--ash)}
-.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--paper);color:var(--ink);font-weight:700;padding:13px 24px;border-radius:30px;box-shadow:0 6px 20px rgba(0,0,0,.4);z-index:99}
-
-/* 게이트 */
-.gate{max-width:420px;margin:9vh auto 0;text-align:center}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--paper);color:var(--ink);font-weight:700;padding:13px 24px;border-radius:30px;z-index:99}
+.gate{max-width:420px;margin:8vh auto 0;text-align:center}
 .roles{display:grid;gap:11px;margin-top:26px}
 .rolebtn{background:var(--card);border:1px solid var(--line);color:var(--paper);padding:20px;border-radius:4px;font-size:17px;font-weight:700}
 .rolebtn:hover{border-color:var(--ember)}
 .rolebtn small{display:block;font-weight:400;color:var(--ash);font-size:13px;margin-top:5px}
-
-/* 학습지 폼 */
 .wsec{border:1px solid var(--line);border-left:4px solid var(--ember);border-radius:3px;padding:16px 18px;margin-top:14px;background:var(--card)}
-.scenetag{font-size:11px;letter-spacing:.2em;color:var(--ember-lt);font-weight:700}
-.wsec h3{font-family:var(--serif);font-weight:700;font-size:17px;margin:3px 0 4px}
+.wsec h3{font-family:var(--serif);font-weight:700;font-size:17px;margin-bottom:4px}
 .q{font-size:14px;font-weight:700;margin:13px 0 5px}
 .q small{font-weight:400;color:var(--ash);font-size:12.5px;margin-left:5px}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
 .chip{border:1px solid var(--line);background:var(--card);color:var(--paper);padding:8px 15px;font-size:14px;border-radius:20px}
 .chip:hover{border-color:var(--ash)}
 .chip.pick{background:var(--ember);border-color:var(--ember)}
+.ab{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+@media(max-width:600px){.ab{grid-template-columns:1fr}}
+.abtn{background:var(--card);border:1.5px solid var(--line);color:var(--paper);border-radius:3px;padding:14px;text-align:left}
+.abtn b{font-family:var(--serif);font-size:16px;display:block}
+.abtn span{font-size:12.5px;color:var(--ash);display:block;margin-top:4px}
+.abtn.pick.A{border-color:var(--a);background:rgba(91,140,140,.18)}
+.abtn.pick.B{border-color:var(--b);background:rgba(209,88,76,.15)}
 .bar{position:sticky;bottom:0;background:linear-gradient(transparent,var(--ink) 26%);padding:20px 0 12px;margin-top:18px}
-.done{border:1px solid var(--ok);border-radius:4px;padding:30px;text-align:center;background:var(--card);margin-top:20px}
+.done{border:1px solid #3f7d4e;border-radius:4px;padding:30px;text-align:center;background:var(--card);margin-top:20px}
 .done b{color:#7fc48f;font-size:19px;font-family:var(--serif)}
-
-/* 결과 보기 */
 .filters{display:flex;gap:8px;margin:14px 0 0;flex-wrap:wrap}
 .filters button{background:none;border:1px solid var(--line);color:var(--ash);font-size:13px;font-weight:700;padding:6px 14px;border-radius:16px}
 .filters button.on{background:var(--paper);color:var(--ink);border-color:var(--paper)}
@@ -59,181 +60,159 @@ textarea{resize:vertical}
 .tabs button.on{color:var(--paper);border-bottom-color:var(--ember)}
 .sec{display:none;padding-top:14px}.sec.on{display:block}
 .team{border:1px solid var(--line);border-radius:4px;margin-top:16px;overflow:hidden}
-.thead{background:var(--card);padding:11px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+.thead{background:var(--card);padding:12px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
 .thead b{font-family:var(--serif);font-size:18px;color:var(--ember-lt)}
+.tp{font-size:11.5px;font-weight:700;padding:2px 10px;border-radius:10px;color:#fff}
+.tp.A{background:var(--a)}.tp.B{background:var(--b)}
 .thead .cnt{font-size:12.5px;color:var(--ash)}
 .thead .cp{margin-left:auto;font-size:12.5px;font-weight:700;background:none;border:1px solid var(--line);color:var(--ash);padding:5px 12px;border-radius:14px}
 .thead .cp:hover{border-color:var(--paper);color:var(--paper)}
-.tbody{padding:12px 16px 16px}
-.ws{background:var(--paper);color:var(--ink);border-radius:3px;padding:14px 16px;margin-top:10px;font-size:14px}
-.ws .top{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
-.ws .cat{font-size:11px;font-weight:700;color:#fff;background:var(--smoke);padding:2px 9px;border-radius:10px}
-.ws.c0 .cat{background:#7a2020}.ws.c1 .cat{background:#54442a}.ws.c2 .cat{background:#2e4a4a}.ws.c3 .cat{background:#3d3d5c}.ws.c4 .cat{background:#4a3050}
-.ws .who{font-size:11.5px;color:var(--smoke)}
-.ws .x{margin-left:auto;border:none;background:none;color:var(--ash);cursor:pointer;font-size:13px}
-.ws .wit{font-family:var(--serif);font-weight:700;font-size:16px;line-height:1.5}
-.ws dl{margin-top:9px;display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:13px}
-.ws dt{color:var(--ember);font-weight:700;white-space:nowrap}
-.ws dd{color:#333}
-.ws .emo{margin-top:8px;display:flex;gap:5px;flex-wrap:wrap}
-.ws .emo span{font-size:11.5px;background:#e8e5dd;padding:2px 9px;border-radius:10px}
-.ws .qs{margin-top:8px;border-top:1px dashed #ccc8bd;padding-top:7px}
-.ws .qs p{font-size:13.5px;margin:3px 0}
-.ws .qs p::before{content:"Q ";color:var(--ember);font-weight:700}
-.emap{display:flex;flex-wrap:wrap;gap:12px 22px;align-items:center;margin-top:18px;min-height:80px}
-.eword{font-family:var(--serif);font-weight:700;color:var(--ash)}
-.eword b{color:var(--ember-lt);font-family:var(--sans);font-size:13px;margin-left:5px}
-.eword.hot{color:var(--paper)}
+.tbody{padding:14px 16px 16px}
+.msg{background:var(--paper);color:var(--ink);border-radius:3px;padding:16px 18px;font-family:var(--serif);font-weight:700;font-size:17px;line-height:1.55}
+.meta{display:grid;grid-template-columns:auto 1fr;gap:5px 12px;margin-top:12px;font-size:13.5px;color:var(--ash)}
+.meta dt{color:var(--ember-lt);font-weight:700;white-space:nowrap}
+.wl{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.wl p{font-size:13.5px;color:var(--paper);margin:5px 0}
+.wl p::before{content:"· ";color:var(--ember-lt)}
+.wl .who{color:var(--ash);font-size:11.5px;margin-left:5px}
 .empty{color:#55555a;padding:36px 0;text-align:center}
+.bigstat{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px}
+.bigstat div{background:var(--card);border:1px solid var(--line);border-radius:3px;padding:14px 20px;text-align:center;min-width:110px}
+.bigstat b{font-family:var(--serif);font-size:30px;display:block;line-height:1.2;color:var(--ember-lt)}
+.bigstat span{font-size:12px;color:var(--ash)}
+.bars{margin-top:16px}
+.brow{display:grid;grid-template-columns:120px 1fr 40px;align-items:center;gap:10px;margin:7px 0;font-size:13.5px}
+.fill{height:20px;background:var(--ember);border-radius:2px;min-width:3px;display:block}
+.brow .n{text-align:right;color:var(--ash);font-weight:700}
 .guide{border:1px dashed var(--line);border-radius:4px;padding:14px 16px;margin-top:16px;font-size:13.5px;color:var(--ash)}
 .guide b{color:var(--ember-lt)}
-.steps3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0 12px}
-@media(max-width:700px){.steps3{grid-template-columns:1fr}}
-.steps3 span{background:var(--card);border:1px solid var(--line);border-radius:3px;padding:8px 11px;font-size:12.5px;color:var(--paper)}
-.steps3 span b:first-child{display:inline-block;width:18px;height:18px;line-height:18px;text-align:center;background:var(--ember);color:#fff;border-radius:50%;font-size:11px;margin-right:6px}
-.padbtn{display:inline-block;background:#f5c518;color:#1a1a1d;font-weight:700;font-size:14px;padding:10px 20px;border-radius:22px;text-decoration:none}
-.padbtn:hover{background:#e0b30f}
-.padbtn.sm{font-size:12.5px;padding:5px 14px;border-radius:14px;margin-left:6px}
-.stat{color:var(--ash);font-size:13.5px;margin-top:10px}
 </style>
 </head>
 <body>
 
 <script>
 /* ★ 이 2줄만 실제 값으로 ★ */
-const SB_URL  = 'https://xdajkxwszdraibozurih.supabase.co';
-const SB_ANON = 'sb_publishable_eonAHNJmziBkTVlG1QVU5w_fZgSsD0M';
+const SB_URL  = 'https://YOUR-PROJECT.supabase.co';
+const SB_ANON = 'YOUR-ANON-KEY';
 
-const CATS=['학교폭력·따돌림','혐오표현·조리돌림','차별·비하','관계 단절','온라인'];
-const EMOS=['모멸감','소외','수치심','죄책감','무력감','분노','두려움','외면하고 싶음','연민','연대감','부끄러운 안도'];
+const CATS=['학교 안에서','온라인에서','가정·이웃에서','세계에서'];
 const TEAMS=['1모둠','2모둠','3모둠','4모둠','5모둠','6모둠','7모둠','8모둠'];
-/* 패들렛 보드 주소 — 바꾸려면 이 줄만 수정 */
-const PADLET_URL='https://padlet.com/teddyhj/padlet-221qhikpqv078vt7';
 </script>
 
-<!-- ===== 게이트 ===== -->
+<!-- 게이트 -->
 <div class="gate" id="gate">
   <div class="tag">도덕 수업 · 학습지 기록</div>
   <h1>우리 시선 속의 전쟁</h1>
-  <p class="sub">종이 학습지에 먼저 쓰고, 여기에 옮겨 기록합니다.</p>
+  <p class="sub">학습지에 먼저 쓰고, 여기에 옮겨 기록합니다.</p>
   <div class="roles">
-    <button class="rolebtn" onclick="go('student')">학생 기록하기<small>학습지 순서대로 입력 · 한 번에 제출</small></button>
-    <button class="rolebtn" onclick="go('view')">결과 보기<small>모둠별로 한눈에 · 로그인 없이</small></button>
-    <button class="rolebtn" onclick="showLogin()">관리자 모드<small>숨김 처리 · 내보내기 (로그인)</small></button>
-  </div>
-  <div class="hide" id="loginbox" style="margin-top:12px;display:grid;gap:8px">
-    <input type="text" id="gEmail" placeholder="교사 이메일" autocomplete="username">
-    <input type="password" id="gPw" placeholder="비밀번호" autocomplete="current-password" onkeydown="if(event.key==='Enter')go('admin')">
-    <button class="btn" onclick="go('admin')">로그인</button>
-    <p class="small" id="sessionHint"></p>
+    <button class="rolebtn" onclick="go('student')">개인 기록<small>내가 목격한 장면 — 1쪽</small></button>
+    <button class="rolebtn" onclick="go('team')">모둠 기록<small>주제 · 메시지 · 역할 — 2쪽 (모둠당 1번)</small></button>
+    <button class="rolebtn" onclick="go('view')">결과 보기<small>모둠별 한눈에 · 인포그래픽 자료</small></button>
   </div>
 </div>
 
-<!-- ===== 학생 학습지 폼 ===== -->
+<!-- 개인 -->
 <div class="wrap hide" id="student">
-  <div class="tag">학습지 기록 · 종이에 쓴 내용을 옮겨 적습니다</div>
-  <h1>우리 시선 속의 전쟁</h1>
-  <p class="sub">실제 이름은 쓰지 않습니다 · 상황만 씁니다 · 모두 쓴 뒤 맨 아래 한 번만 제출하세요</p>
-
-  <div class="wsec" style="border-left-color:var(--ash)">
-    <div class="q">우리 반 / 우리 모둠 <small>먼저 골라주세요</small></div>
+  <div class="tag">개인 기록 · 학습지 1쪽</div>
+  <h1>내가 목격한 작은 전쟁</h1>
+  <p class="sub">실제 이름은 쓰지 않습니다. 상황만 씁니다.</p>
+  <div class="wsec" style="border-left-color:var(--line)">
+    <div class="q">우리 반 / 우리 모둠</div>
     <div class="row">
-      <input type="text" id="fClass" placeholder="반 (예: 201)">
-      <select id="fTeam"></select>
-      <input type="text" id="fNick" placeholder="별칭 또는 번호 (선택)">
+      <input type="text" id="sClass" placeholder="반 (예: 201)">
+      <select id="sTeam"></select>
+      <input type="text" id="sNick" placeholder="별칭·번호 (선택)">
     </div>
   </div>
-
   <div class="wsec">
-    <div class="scenetag">장면 하나 · 세 개의 문장</div>
-    <h3>세 장면의 공통점은 무엇일까?</h3>
-    <input type="text" id="f1" placeholder="떠오른 단어나 한 문장">
+    <h3>전쟁의 두 얼굴</h3>
+    <div class="q">보이는 전쟁이란? <small>무기·국가 사이의 다툼</small></div>
+    <input type="text" id="sVis">
+    <div class="q">보이지 않는 전쟁이란? <small>말·시선·사람 사이의 다툼</small></div>
+    <input type="text" id="sInv">
   </div>
-
   <div class="wsec">
-    <div class="scenetag">장면 둘 · 전쟁의 재정의</div>
-    <h3>내가 생각하는 '시선의 전쟁'이란?</h3>
-    <input type="text" id="f2" placeholder="폭탄 없이도 사람을 무너뜨리는 것 — 나의 말로">
-  </div>
-
-  <div class="wsec">
-    <div class="scenetag">장면 셋 · 목격 수집</div>
-    <h3>내가 목격한 '작은 전쟁'</h3>
-    <div class="chips" id="catChips"></div>
+    <h3>내가 목격한 장면</h3>
+    <div class="chips" id="sCats"></div>
     <div class="q">그 장면을 한 문장으로 <small>이름 없이, 상황만</small></div>
-    <textarea id="f3" rows="2" placeholder="예: 급식실에서 늘 혼자 앉는 아이 옆을 모두가 그냥 지나쳤다"></textarea>
+    <textarea id="sWit" rows="2" placeholder="예: 급식실에서 늘 혼자 앉는 아이 옆을 모두가 그냥 지나쳤다"></textarea>
   </div>
-
-  <div class="wsec">
-    <div class="scenetag">장면 넷 · 파고들기</div>
-    <h3>앵커 질문 ⚓ 을 따라 파고들기</h3>
-    <div class="q">⚓ 폭탄 없이도 사람을 무너뜨리는 것에는 무엇이 있는가?</div>
-    <input type="text" id="f4a">
-    <div class="q">⚓ 그 장면에서 가장 아프거나 억울한 존재는 누구, 혹은 무엇인가?</div>
-    <input type="text" id="f4b">
-    <div class="q">⚓ 지켜보기만 한 사람에게도 책임이 있는가? <small>나의 생각과 이유</small></div>
-    <input type="text" id="f4c">
-    <div class="q">그렇다면, 그 장면 속에서 나는 어디에 서 있었나요? <small>목격자 / 방관자 / 발언자 / 그 밖의 자리</small></div>
-    <input type="text" id="f4d">
-    <div class="q">감정 어휘 <small>2개 이상 골라주세요</small></div>
-    <div class="chips" id="emoChips"></div>
-    <div class="q">나의 질문 <small>'예/아니오'로 답할 수 없는 질문 — 여러 개면 줄을 바꿔 쓰세요</small></div>
-    <textarea id="f4q" rows="3" placeholder="예: 다수가 웃을 때 함께 웃지 않는 것도 용기일까?"></textarea>
-  </div>
-
-  <div class="wsec">
-    <div class="scenetag">장면 다섯 · 목격자의 선언</div>
-    <h3>목격자와 방관자를 가르는 것은 무엇일까?</h3>
-    <input type="text" id="f5" placeholder="오늘 수업의 마지막 한 줄">
-  </div>
-
-  <div class="bar"><button class="btn" id="submitBtn" style="width:100%" onclick="submitWS()">학습지 제출하기</button></div>
-
-  <div class="done hide" id="doneBox">
-    <b>제출 완료</b>
-    <p class="small" style="margin-top:8px">우리 모둠 칸에 기록되었습니다. 결과 보기에서 모둠 전체 내용을 확인할 수 있어요.</p>
-    <div class="row" style="justify-content:center"><button class="btn ghost" onclick="location.reload()">다시 처음으로</button></div>
+  <div class="bar"><button class="btn" id="sBtn" style="width:100%" onclick="submitStudent()">기록 제출하기</button></div>
+  <div class="done hide" id="sDone"><b>제출 완료</b>
+    <p class="small" style="margin-top:8px">우리 모둠 칸에 기록되었습니다.</p>
+    <div class="row" style="justify-content:center"><button class="btn ghost" onclick="location.reload()">처음으로</button></div>
   </div>
 </div>
 
-<!-- ===== 결과 보기 / 관리자 ===== -->
+<!-- 모둠 -->
+<div class="wrap hide" id="teamForm">
+  <div class="tag">모둠 기록 · 학습지 2쪽 · 모둠당 한 번</div>
+  <h1>우리 모둠의 전쟁</h1>
+  <p class="sub">토의가 끝난 뒤, 기록 담당이 옮겨 적습니다. 다시 열어 수정할 수 있어요.</p>
+  <div class="wsec" style="border-left-color:var(--line)">
+    <div class="q">우리 반 / 우리 모둠</div>
+    <div class="row">
+      <input type="text" id="tClass" placeholder="반 (예: 201)">
+      <select id="tTeam"></select>
+      <button class="btn ghost" onclick="loadTeam()">불러오기</button>
+    </div>
+    <p class="small" style="margin-top:6px">이미 저장한 내용이 있으면 불러와 이어서 고칠 수 있습니다.</p>
+  </div>
+  <div class="wsec">
+    <h3>브레인스토밍에서 고른 세 가지</h3>
+    <div class="row"><input type="text" id="t1" placeholder="①"></div>
+    <div class="row"><input type="text" id="t2" placeholder="②"></div>
+    <div class="row"><input type="text" id="t3" placeholder="③"></div>
+  </div>
+  <div class="wsec">
+    <h3>우리 모둠의 주제</h3>
+    <div class="ab">
+      <button class="abtn A" id="btnA" onclick="pickTopic('A')"><b>주제 A · 보이는 전쟁</b><span>국제 분쟁 · 난민 · 파괴와 인명 피해</span></button>
+      <button class="abtn B" id="btnB" onclick="pickTopic('B')"><b>주제 B · 보이지 않는 전쟁</b><span>혐오 표현 · 온라인 갈등 · 편견 · 따돌림</span></button>
+    </div>
+    <div class="q">이 주제를 고른 이유</div>
+    <textarea id="tReason" rows="2"></textarea>
+    <div class="q">반대 의견이 있었다면 <small>있었다면 적기</small></div>
+    <input type="text" id="tObj">
+  </div>
+  <div class="wsec">
+    <h3>핵심 메시지 한 문장</h3>
+    <p class="small">누구도 공격하지 않는 말로. 이 문장이 작품의 출발점이 됩니다.</p>
+    <textarea id="tMsg" rows="2"></textarea>
+  </div>
+  <div class="wsec">
+    <h3>역할 나누기</h3>
+    <div class="row"><input type="text" id="rPain" placeholder="고통 담당"><input type="text" id="rBy" placeholder="방관 담당"></div>
+    <div class="row"><input type="text" id="rRes" placeholder="저항 담당"><input type="text" id="rHope" placeholder="희망 담당"></div>
+  </div>
+  <div class="wsec">
+    <h3>인포그래픽 밑그림</h3>
+    <div class="q">① 가장 먼저 보일 제목·낱말</div>
+    <input type="text" id="pTitle">
+    <div class="q">③ 메시지를 대신할 상징 <small>사람이 아닌 사물로</small></div>
+    <input type="text" id="pSym">
+    <div class="q">④ 보는 사람에게 던지는 마지막 질문</div>
+    <input type="text" id="pQ">
+  </div>
+  <div class="bar"><button class="btn" style="width:100%" onclick="saveTeam()">모둠 기록 저장하기</button></div>
+</div>
+
+<!-- 결과 -->
 <div class="wrap hide" id="result">
-  <div class="tag" id="rTag">결과 보기 · 실시간</div>
-  <h1>학급 결과 — 모둠별 한눈에 보기</h1>
+  <div class="tag">결과 보기 · 실시간</div>
+  <h1>학급 결과</h1>
   <div class="filters" id="classBar"></div>
   <div class="tabs">
     <button class="on" data-t="rTeams">모둠별 기록</button>
-    <button data-t="rEmo">감정 지도</button>
-    <button data-t="rQ">질문 모음</button>
-    <button data-t="rTools" class="hide" id="toolTab">데이터</button>
+    <button data-t="rStat">인포그래픽 자료</button>
   </div>
-
   <div class="sec on" id="rTeams">
-    <div class="guide">
-      📌 <b>다음 활동 — 모둠 프레젠테이션 만들기</b>
-      <div class="steps3">
-        <span><b>1</b> 우리 모둠 카드의 <b>[모둠 내용 복사]</b> 누르기</span>
-        <span><b>2</b> <b>[패들렛 열기]</b> → 우리 모둠 칸에 붙여넣기</span>
-        <span><b>3</b> 정리 후 <b>프레젠테이션(슬라이드쇼)</b>로 발표</span>
-      </div>
-      <a class="padbtn" href="#" id="padTop" target="_blank" rel="noopener">패들렛 열기 ↗</a>
-    </div>
+    <div class="guide">📌 <b>모둠 내용 복사</b>를 누르면 우리 모둠 기록이 통째로 복사됩니다 — 패들렛이나 인포그래픽 제작에 그대로 붙여넣으세요.</div>
     <div id="teamWrap"></div>
   </div>
-
-  <div class="sec" id="rEmo">
-    <div class="emap" id="emap"></div>
-    <p class="stat" id="emoStat"></p>
-  </div>
-
-  <div class="sec" id="rQ"><div id="qWrap"></div></div>
-
-  <div class="sec" id="rTools">
-    <div class="wsec" style="border-left-color:var(--ash)">
-      <h3>CSV 내보내기</h3>
-      <p class="small">선택한 반의 전체 학습지 기록을 파일로 저장합니다.</p>
-      <div class="row"><button class="btn ghost" onclick="exportCSV()">학습지 전체 내보내기</button><button class="btn ghost" onclick="logout()">로그아웃</button></div>
-    </div>
+  <div class="sec" id="rStat">
+    <p class="sub">인포그래픽에 넣을 숫자입니다. 그대로 옮겨 적으세요.</p>
+    <div id="statWrap"></div>
   </div>
 </div>
 
@@ -242,169 +221,157 @@ const sb=supabase.createClient(SB_URL,SB_ANON);
 const $=id=>document.getElementById(id);
 const esc=s=>{const d=document.createElement('div');d.textContent=s;return d.innerHTML;};
 function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),1900);}
-let MODE='',isAdmin=false,hasSession=false,rows=[],selClass='전체',pickedCat=null,pickedEmos=[];
-
+let ws=[],tm=[],selClass='전체',pickedCat=null,pickedTopic=null;
 const params=new URLSearchParams(location.search);
-sb.auth.getSession().then(({data})=>{if(data.session){hasSession=true;$('sessionHint').textContent='로그인 유지 중 — 바로 입장됩니다';}});
-function showLogin(){$('loginbox').classList.remove('hide');$('gEmail').focus();}
 
-async function go(mode){
-  if(mode==='admin'&&!hasSession){
-    const email=$('gEmail').value.trim(),pw=$('gPw').value;
-    if(!email||!pw){toast('이메일과 비밀번호를 입력하세요');return;}
-    const{error}=await sb.auth.signInWithPassword({email,password:pw});
-    if(error){toast('로그인 실패 — 계정 정보를 확인하세요');return;}
-  }
-  MODE=mode;isAdmin=(mode==='admin');
+['sTeam','tTeam'].forEach(id=>$(id).innerHTML='<option value="">모둠 선택</option>'+TEAMS.map(t=>`<option>${t}</option>`).join(''));
+if(params.get('class')){$('sClass').value=params.get('class');$('tClass').value=params.get('class');}
+
+function go(mode){
   $('gate').classList.add('hide');
-  if(mode==='student'){$('student').classList.remove('hide');initForm();}
-  else{
-    $('result').classList.remove('hide');
-    if(isAdmin){$('rTag').textContent='관리자 모드 · 실시간';$('toolTab').classList.remove('hide');}
-    initResult();
+  if(mode==='student'){
+    $('student').classList.remove('hide');
+    CATS.forEach((c,i)=>{const b=document.createElement('button');b.className='chip';b.textContent=c;
+      b.onclick=()=>{document.querySelectorAll('#sCats .chip').forEach(x=>x.classList.remove('pick'));b.classList.add('pick');pickedCat=i;};
+      $('sCats').appendChild(b);});
   }
+  else if(mode==='team'){$('teamForm').classList.remove('hide');}
+  else{$('result').classList.remove('hide');initResult();}
 }
-async function logout(){await sb.auth.signOut();location.reload();}
 
-/* ---------- 학생 폼 ---------- */
-function initForm(){
-  if(params.get('class'))$('fClass').value=params.get('class');
-  $('fTeam').innerHTML='<option value="">모둠 선택</option>'+TEAMS.map(t=>`<option>${t}</option>`).join('');
-  CATS.forEach((c,i)=>{
-    const b=document.createElement('button');b.className='chip';b.textContent=c;
-    b.onclick=()=>{document.querySelectorAll('#catChips .chip').forEach(x=>x.classList.remove('pick'));b.classList.add('pick');pickedCat=i;};
-    $('catChips').appendChild(b);
-  });
-  EMOS.forEach(e=>{
-    const b=document.createElement('button');b.className='chip';b.textContent=e;
-    b.onclick=()=>{
-      if(b.classList.contains('pick')){b.classList.remove('pick');pickedEmos=pickedEmos.filter(x=>x!==e);}
-      else{b.classList.add('pick');pickedEmos.push(e);}
-    };
-    $('emoChips').appendChild(b);
-  });
-}
-async function submitWS(){
-  const cls=$('fClass').value.trim(),team=$('fTeam').value;
-  if(!cls){toast('반을 입력하세요');return;}
-  if(!team){toast('모둠을 골라주세요');return;}
-  if(!$('f3').value.trim()){toast('장면 셋 — 목격한 장면을 써주세요');return;}
-  $('submitBtn').disabled=true;
+/* 개인 */
+async function submitStudent(){
+  const c=$('sClass').value.trim(),t=$('sTeam').value;
+  if(!c){toast('반을 입력하세요');return;}
+  if(!t){toast('모둠을 골라주세요');return;}
+  if(!$('sWit').value.trim()){toast('목격한 장면을 써주세요');return;}
+  $('sBtn').disabled=true;
   const{error}=await sb.from('worksheets').insert({
-    class_code:cls,team,nickname:$('fNick').value.trim()||null,
-    s1_common:$('f1').value.trim(),s2_define:$('f2').value.trim(),
-    category:pickedCat===null?0:pickedCat,witness:$('f3').value.trim(),
-    a1_break:$('f4a').value.trim(),a2_hurt:$('f4b').value.trim(),
-    a3_bystander:$('f4c').value.trim(),stance:$('f4d').value.trim(),
-    emotions:pickedEmos.join(', '),questions:$('f4q').value.trim(),
-    s5_final:$('f5').value.trim()
-  });
-  if(error){toast('제출 실패 — 다시 시도해 주세요');$('submitBtn').disabled=false;return;}
+    class_code:c,team:t,nickname:$('sNick').value.trim()||null,
+    category:pickedCat===null?0:pickedCat,witness:$('sWit').value.trim(),
+    s1_common:$('sVis').value.trim(),s2_define:$('sInv').value.trim()});
+  if(error){toast('제출 실패 — 다시 시도해 주세요');$('sBtn').disabled=false;return;}
   $('student').querySelectorAll('.wsec,.bar').forEach(x=>x.classList.add('hide'));
-  $('doneBox').classList.remove('hide');
-  window.scrollTo({top:0,behavior:'smooth'});
+  $('sDone').classList.remove('hide');window.scrollTo({top:0,behavior:'smooth'});
 }
 
-/* ---------- 결과 ---------- */
+/* 모둠 */
+function pickTopic(t){
+  pickedTopic=t;
+  $('btnA').classList.toggle('pick',t==='A');
+  $('btnB').classList.toggle('pick',t==='B');
+}
+async function loadTeam(){
+  const c=$('tClass').value.trim(),t=$('tTeam').value;
+  if(!c||!t){toast('반과 모둠을 먼저 고르세요');return;}
+  const{data}=await sb.from('moral_teams').select('*').eq('class_code',c).eq('team',t).maybeSingle();
+  if(!data){toast('저장된 내용이 없습니다 — 새로 작성하세요');return;}
+  $('t1').value=data.top1||'';$('t2').value=data.top2||'';$('t3').value=data.top3||'';
+  if(data.topic)pickTopic(data.topic);
+  $('tReason').value=data.reason||'';$('tObj').value=data.objection||'';$('tMsg').value=data.message||'';
+  $('rPain').value=data.role_pain||'';$('rBy').value=data.role_bystand||'';
+  $('rRes').value=data.role_resist||'';$('rHope').value=data.role_hope||'';
+  $('pTitle').value=data.poster_title||'';$('pSym').value=data.poster_symbol||'';$('pQ').value=data.poster_question||'';
+  toast('불러왔습니다');
+}
+async function saveTeam(){
+  const c=$('tClass').value.trim(),t=$('tTeam').value;
+  if(!c){toast('반을 입력하세요');return;}
+  if(!t){toast('모둠을 골라주세요');return;}
+  if(!pickedTopic){toast('주제 A 또는 B를 골라주세요');return;}
+  if(!$('tMsg').value.trim()){toast('핵심 메시지를 써주세요');return;}
+  const{error}=await sb.from('moral_teams').upsert({
+    class_code:c,team:t,
+    top1:$('t1').value.trim(),top2:$('t2').value.trim(),top3:$('t3').value.trim(),
+    topic:pickedTopic,reason:$('tReason').value.trim(),objection:$('tObj').value.trim(),
+    message:$('tMsg').value.trim(),
+    role_pain:$('rPain').value.trim(),role_bystand:$('rBy').value.trim(),
+    role_resist:$('rRes').value.trim(),role_hope:$('rHope').value.trim(),
+    poster_title:$('pTitle').value.trim(),poster_symbol:$('pSym').value.trim(),
+    poster_question:$('pQ').value.trim(),updated_at:new Date().toISOString()
+  },{onConflict:'class_code,team'});
+  if(error){toast('저장 실패 — 다시 시도해 주세요');return;}
+  toast('모둠 기록이 저장되었습니다');
+}
+
+/* 결과 */
 function initResult(){
   if(params.get('class'))selClass=params.get('class');
   document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
     document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('on'));
     document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
-    b.classList.add('on');$(b.dataset.t).classList.add('on');
-  });
+    b.classList.add('on');$(b.dataset.t).classList.add('on');});
   load();
-  sb.channel('ws-all').on('postgres_changes',{event:'*',schema:'public',table:'worksheets'},load).subscribe();
+  sb.channel('all')
+    .on('postgres_changes',{event:'*',schema:'public',table:'worksheets'},load)
+    .on('postgres_changes',{event:'*',schema:'public',table:'moral_teams'},load).subscribe();
 }
 async function load(){
-  const{data}=await sb.from('worksheets').select('*').order('created_at');
-  rows=data||[];renderClassBar();renderTeams();renderEmo();renderQ();
+  const[w,t]=await Promise.all([
+    sb.from('worksheets').select('*').order('created_at'),
+    sb.from('moral_teams').select('*')]);
+  ws=w.data||[];tm=t.data||[];
+  renderBar();renderTeams();renderStat();
 }
-const byClass=()=>selClass==='전체'?rows:rows.filter(r=>r.class_code===selClass);
-function renderClassBar(){
-  const list=['전체',...[...new Set(rows.map(r=>r.class_code))].sort()];
+const byC=a=>selClass==='전체'?a:a.filter(x=>x.class_code===selClass);
+function renderBar(){
+  const list=['전체',...[...new Set([...ws,...tm].map(r=>r.class_code))].sort()];
   if(!list.includes(selClass))selClass='전체';
-  $('classBar').innerHTML=list.map(c=>
-    `<button class="${c===selClass?'on':''}" onclick="pickClass('${esc(c)}')">${c==='전체'?'전체 반':esc(c)+'반'}</button>`).join('');
+  $('classBar').innerHTML=list.map(c=>`<button class="${c===selClass?'on':''}" onclick="pickClass('${esc(c)}')">${c==='전체'?'전체 반':esc(c)+'반'}</button>`).join('');
 }
-function pickClass(c){selClass=c;renderClassBar();renderTeams();renderEmo();renderQ();}
-function teamGroups(){
-  const g={};byClass().forEach(r=>{
-    const k=(selClass==='전체'?r.class_code+'반 ':'')+r.team;(g[k]=g[k]||[]).push(r);});
-  return g;
-}
-function wsHTML(r){
-  const dl=[['⚓ 무너뜨리는 것',r.a1_break],['⚓ 아픈 존재',r.a2_hurt],['⚓ 방관의 책임',r.a3_bystander],['나의 자리',r.stance],['시선의 전쟁이란',r.s2_define],['마지막 한 줄',r.s5_final]]
-    .filter(x=>x[1]).map(x=>`<dt>${x[0]}</dt><dd>${esc(x[1])}</dd>`).join('');
-  const emo=(r.emotions||'').split(',').map(s=>s.trim()).filter(Boolean).map(e=>`<span>${esc(e)}</span>`).join('');
-  const qs=(r.questions||'').split('\n').map(s=>s.trim()).filter(Boolean).map(q=>`<p>${esc(q)}</p>`).join('');
-  return `<div class="ws c${r.category||0}">
-    <div class="top"><span class="cat">${CATS[r.category||0]}</span><span class="who">${esc(r.nickname||'익명')}</span>
-    ${isAdmin?`<button class="x" onclick="delRow('${r.id}')">✕ 삭제</button>`:''}</div>
-    <div class="wit">${esc(r.witness||'')}</div>
-    ${dl?`<dl>${dl}</dl>`:''}
-    ${emo?`<div class="emo">${emo}</div>`:''}
-    ${qs?`<div class="qs">${qs}</div>`:''}
-  </div>`;
-}
+function pickClass(c){selClass=c;renderBar();renderTeams();renderStat();}
 function renderTeams(){
-  $('padTop').href=PADLET_URL;
-  const g=teamGroups(),keys=Object.keys(g).sort((a,b)=>a.localeCompare(b,'ko',{numeric:true}));
-  $('teamWrap').innerHTML=keys.length?keys.map(k=>
-    `<div class="team"><div class="thead"><b>${esc(k)}</b><span class="cnt">${g[k].length}명 기록</span>
-      <button class="cp" onclick="copyTeam('${esc(k)}')">모둠 내용 복사</button>
-      <a class="padbtn sm" href="${PADLET_URL}" target="_blank" rel="noopener">패들렛 ↗</a></div>
-      <div class="tbody">${g[k].map(wsHTML).join('')}</div></div>`).join('')
-    :'<div class="empty">아직 제출된 학습지가 없습니다.</div>';
+  const g={};
+  byC(ws).forEach(r=>{const k=(selClass==='전체'?r.class_code+'반 ':'')+r.team;(g[k]=g[k]||{w:[],t:null}).w.push(r);});
+  byC(tm).forEach(r=>{const k=(selClass==='전체'?r.class_code+'반 ':'')+r.team;(g[k]=g[k]||{w:[],t:null}).t=r;});
+  const keys=Object.keys(g).sort((a,b)=>a.localeCompare(b,'ko',{numeric:true}));
+  $('teamWrap').innerHTML=keys.length?keys.map(k=>{
+    const t=g[k].t,w=g[k].w;
+    const meta=t?[['고른 이유',t.reason],['반대 의견',t.objection],['세 가지',[t.top1,t.top2,t.top3].filter(Boolean).join(' · ')],
+      ['역할',[t.role_pain&&'고통 '+t.role_pain,t.role_bystand&&'방관 '+t.role_bystand,t.role_resist&&'저항 '+t.role_resist,t.role_hope&&'희망 '+t.role_hope].filter(Boolean).join(' / ')],
+      ['포스터 제목',t.poster_title],['상징',t.poster_symbol],['마지막 질문',t.poster_question]]
+      .filter(x=>x[1]).map(x=>`<dt>${x[0]}</dt><dd>${esc(x[1])}</dd>`).join(''):'';
+    return `<div class="team"><div class="thead"><b>${esc(k)}</b>
+      ${t&&t.topic?`<span class="tp ${t.topic}">${t.topic==='A'?'보이는 전쟁':'보이지 않는 전쟁'}</span>`:''}
+      <span class="cnt">개인 기록 ${w.length}건</span>
+      <button class="cp" onclick="copyTeam('${esc(k)}')">모둠 내용 복사</button></div>
+      <div class="tbody">
+      ${t&&t.message?`<div class="msg">"${esc(t.message)}"</div>`:'<div class="small">아직 모둠 기록이 저장되지 않았습니다.</div>'}
+      ${meta?`<dl class="meta">${meta}</dl>`:''}
+      ${w.length?`<div class="wl">${w.map(x=>`<p>${esc(x.witness||'')}<span class="who">${esc(x.nickname||'익명')}</span></p>`).join('')}</div>`:''}
+      </div></div>`;}).join(''):'<div class="empty">아직 기록이 없습니다.</div>';
 }
 function copyTeam(k){
-  const g=teamGroups()[k]||[];
-  let t=`[${k}] 우리 모둠이 목격한 전쟁\n\n`;
-  g.forEach((r,i)=>{
-    t+=`${i+1}. (${CATS[r.category||0]}) ${r.witness||''}\n`;
-    if(r.a2_hurt)t+=`   · 아픈 존재: ${r.a2_hurt}\n`;
-    if(r.stance)t+=`   · 나의 자리: ${r.stance}\n`;
-    if(r.emotions)t+=`   · 감정: ${r.emotions}\n`;
-    if(r.questions)t+=`   · 질문: ${r.questions.split('\n').filter(Boolean).join(' / ')}\n`;
-    t+='\n';
-  });
-  navigator.clipboard.writeText(t).then(()=>{
-    toast('복사 완료 — 패들렛에 붙여넣으세요');
-    if(confirm(`${k} 내용을 복사했습니다.\n패들렛을 새 창으로 열까요?`))window.open(PADLET_URL,'_blank');
-  }).catch(()=>toast('복사 실패'));
+  const w=byC(ws).filter(r=>((selClass==='전체'?r.class_code+'반 ':'')+r.team)===k);
+  const t=byC(tm).find(r=>((selClass==='전체'?r.class_code+'반 ':'')+r.team)===k);
+  let s=`[${k}] 우리 모둠의 전쟁\n\n`;
+  if(t){
+    s+=`주제: ${t.topic==='A'?'보이는 전쟁':'보이지 않는 전쟁'}\n핵심 메시지: "${t.message||''}"\n`;
+    if(t.reason)s+=`고른 이유: ${t.reason}\n`;
+    const three=[t.top1,t.top2,t.top3].filter(Boolean);
+    if(three.length)s+=`우리가 고른 세 가지: ${three.join(' · ')}\n`;
+    s+=`\n[인포그래픽 밑그림]\n제목: ${t.poster_title||''}\n상징: ${t.poster_symbol||''}\n마지막 질문: ${t.poster_question||''}\n`;
+    s+=`역할: 고통 ${t.role_pain||''} / 방관 ${t.role_bystand||''} / 저항 ${t.role_resist||''} / 희망 ${t.role_hope||''}\n`;
+  }
+  if(w.length){s+=`\n[우리가 목격한 장면 ${w.length}건]\n`;w.forEach((x,i)=>{s+=`${i+1}. (${CATS[x.category||0]}) ${x.witness||''}\n`;});}
+  navigator.clipboard.writeText(s).then(()=>toast('복사 완료')).catch(()=>toast('복사 실패'));
 }
-async function delRow(id){await sb.from('worksheets').delete().eq('id',id);load();}
-function renderEmo(){
-  const m={};byClass().forEach(r=>(r.emotions||'').split(',').map(s=>s.trim()).filter(Boolean).forEach(e=>m[e]=(m[e]||0)+1));
-  const es=Object.entries(m).sort((a,b)=>b[1]-a[1]);
-  $('emap').innerHTML=es.length?es.map(([e,n])=>
-    `<span class="eword ${n>=3?'hot':''}" style="font-size:${Math.min(18+n*4,56)}px">${esc(e)}<b>${n}</b></span>`).join('')
-    :'<div class="empty">아직 감정 기록이 없습니다.</div>';
-  const tot=es.reduce((a,b)=>a+b[1],0);
-  $('emoStat').textContent=tot?`${selClass==='전체'?'전체 반':selClass+'반'} · 총 ${tot}표 · ${es.length}개 감정`:'';
-}
-function renderQ(){
-  const g=teamGroups(),keys=Object.keys(g).sort((a,b)=>a.localeCompare(b,'ko',{numeric:true}));
-  let html='';
-  keys.forEach(k=>{
-    const qs=[];g[k].forEach(r=>(r.questions||'').split('\n').map(s=>s.trim()).filter(Boolean).forEach(q=>qs.push(q)));
-    if(!qs.length)return;
-    html+=`<div class="team"><div class="thead"><b>${esc(k)}</b><span class="cnt">질문 ${qs.length}개</span></div>
-      <div class="tbody">${qs.map(q=>`<div class="ws"><div class="wit">${esc(q)}</div></div>`).join('')}</div></div>`;
-  });
-  $('qWrap').innerHTML=html||'<div class="empty">아직 질문이 없습니다.</div>';
-}
-async function exportCSV(){
-  const d=byClass();
-  if(!d.length){toast('내보낼 데이터가 없습니다');return;}
-  const cols=['class_code','team','nickname','category','witness','s1_common','s2_define','a1_break','a2_hurt','a3_bystander','stance','emotions','questions','s5_final','created_at'];
-  const head=['반','모둠','별칭','유형','목격장면','공통점','시선의전쟁','무너뜨리는것','아픈존재','방관의책임','나의자리','감정','질문','마지막한줄','제출시각'];
-  const csv='\uFEFF'+head.join(',')+'\n'+d.map(r=>cols.map(c=>{
-    let v=r[c];if(c==='category')v=CATS[v||0];
-    return `"${String(v??'').replace(/"/g,'""')}"`;}).join(',')).join('\n');
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
-  a.download=`학습지_${selClass==='전체'?'all':selClass}.csv`;a.click();
+function renderStat(){
+  const W=byC(ws),T=byC(tm);
+  if(!W.length&&!T.length){$('statWrap').innerHTML='<div class="empty">집계할 기록이 없습니다.</div>';return;}
+  const cat={};W.forEach(r=>cat[r.category||0]=(cat[r.category||0]||0)+1);
+  const max=Math.max(1,...Object.values(cat));
+  const A=T.filter(x=>x.topic==='A').length,B=T.filter(x=>x.topic==='B').length;
+  $('statWrap').innerHTML=`
+  <div class="bigstat">
+    <div><b>${W.length}</b><span>목격 기록</span></div>
+    <div><b>${new Set(W.map(r=>r.team)).size||T.length}</b><span>모둠</span></div>
+    <div><b>${A}</b><span>보이는 전쟁</span></div>
+    <div><b>${B}</b><span>보이지 않는 전쟁</span></div>
+  </div>
+  <div class="bars">${CATS.map((c,i)=>{const v=cat[i]||0;
+    return `<div class="brow"><span>${c}</span><span><span class="fill" style="width:${Math.round(v/max*100)}%"></span></span><span class="n">${v}</span></div>`;}).join('')}</div>
+  ${T.filter(x=>x.message).length?`<div class="guide" style="margin-top:18px"><b>모둠 메시지 모음</b><br>${T.filter(x=>x.message).map(x=>`· ${esc(x.team)} "${esc(x.message)}"`).join('<br>')}</div>`:''}`;
 }
 </script>
 </body>
