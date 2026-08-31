@@ -86,6 +86,24 @@ textarea{resize:vertical}
 .brow .n{text-align:right;color:var(--ash);font-weight:700}
 .guide{border:1px dashed var(--line);border-radius:4px;padding:14px 16px;margin-top:16px;font-size:13.5px;color:var(--ash)}
 .guide b{color:var(--ember-lt)}
+.admbar{display:flex;justify-content:flex-end;margin-top:10px}
+.admbtn{background:none;border:1px solid var(--line);color:var(--ash);font-size:12.5px;font-weight:700;padding:6px 13px;border-radius:14px}
+.admbtn:hover{border-color:var(--paper);color:var(--paper)}
+.admbtn.on{background:var(--ember);border-color:var(--ember);color:#fff}
+.admonly{display:none}
+.adm .admonly{display:inline-flex}
+.wl li,.wl .wrow{list-style:none}
+.wrow{display:flex;align-items:flex-start;gap:8px}
+.wrow p{flex:1}
+.delx{flex:0 0 auto;background:none;border:1px solid var(--line);color:var(--ember-lt);font-size:11px;font-weight:700;padding:3px 9px;border-radius:12px;margin-top:5px}
+.delx:hover{border-color:var(--ember-lt)}
+.tedit{background:none;border:1px solid var(--line);color:var(--ash);font-size:11.5px;font-weight:700;padding:5px 11px;border-radius:14px}
+.tedit:hover{border-color:var(--paper);color:var(--paper)}
+.tedit.danger{color:var(--ember-lt)}
+.tedit.danger:hover{border-color:var(--ember-lt)}
+.editform{margin-top:14px;border-top:1px dashed var(--line);padding-top:14px}
+.editform .q{margin-top:10px}
+.editform .row{margin-top:6px}
 </style>
 </head>
 <body>
@@ -96,6 +114,8 @@ const SB_URL  = 'https://xdajkxwszdraibozurih.supabase.co';
 const SB_ANON = 'sb_publishable_eonAHNJmziBkTVlG1QVU5w_fZgSsD0M';
 const CATS=['학교 안에서','온라인에서','가정·이웃에서','세계에서'];
 const TEAMS=['1모둠','2모둠','3모둠','4모둠','5모둠','6모둠','7모둠','8모둠'];
+/* ★ 결과보기 관리자 모드 비밀번호 — 필요하면 이 값만 바꾸세요 ★ */
+const ADMIN_PW='teacher2026';
 </script>
 
 <!-- 게이트 -->
@@ -200,6 +220,7 @@ const TEAMS=['1모둠','2모둠','3모둠','4모둠','5모둠','6모둠','7모�
 <div class="wrap hide" id="result">
   <div class="tag">결과 보기 · 실시간</div>
   <h1>학급 결과</h1>
+  <div class="admbar"><button class="admbtn" id="admBtn" onclick="toggleAdmin()">관리자 모드</button></div>
   <div class="filters" id="classBar"></div>
   <div class="tabs">
     <button class="on" data-t="rTeams">모둠별 기록</button>
@@ -221,6 +242,7 @@ const $=id=>document.getElementById(id);
 const esc=s=>{const d=document.createElement('div');d.textContent=s;return d.innerHTML;};
 function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),1900);}
 let ws=[],tm=[],selClass='전체',pickedCat=null,pickedTopic=null;
+let isAdmin=sessionStorage.getItem('sow_admin')==='1',editingKey=null,editTopic=null,editingWitness=null;
 const params=new URLSearchParams(location.search);
 
 ['sTeam','tTeam'].forEach(id=>$(id).innerHTML='<option value="">모둠 선택</option>'+TEAMS.map(t=>`<option>${t}</option>`).join(''));
@@ -300,10 +322,108 @@ function initResult(){
     document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('on'));
     document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
     b.classList.add('on');$(b.dataset.t).classList.add('on');});
+  updateAdmBtn();
   load();
   sb.channel('all')
     .on('postgres_changes',{event:'*',schema:'public',table:'worksheets'},load)
     .on('postgres_changes',{event:'*',schema:'public',table:'moral_teams'},load).subscribe();
+}
+function updateAdmBtn(){
+  const b=$('admBtn');if(!b)return;
+  b.textContent=isAdmin?'관리자 모드 종료':'관리자 모드';
+  b.classList.toggle('on',isAdmin);
+}
+function toggleAdmin(){
+  if(isAdmin){
+    isAdmin=false;editingKey=null;editTopic=null;
+    sessionStorage.removeItem('sow_admin');
+    updateAdmBtn();renderTeams();
+    toast('관리자 모드를 종료했습니다');
+    return;
+  }
+  const pw=prompt('관리자 비밀번호를 입력하세요');
+  if(pw===null)return;
+  if(pw===ADMIN_PW){
+    isAdmin=true;sessionStorage.setItem('sow_admin','1');
+    updateAdmBtn();renderTeams();
+    toast('관리자 모드 — 삭제·수정이 가능합니다');
+  }else{toast('비밀번호가 틀렸습니다');}
+}
+async function deleteWitness(id){
+  if(!confirm('이 목격 기록을 삭제할까요? 되돌릴 수 없습니다.'))return;
+  const{error}=await sb.from('worksheets').delete().eq('id',id);
+  if(error){toast('삭제 실패 — 다시 시도해 주세요');return;}
+  toast('삭제되었습니다');load();
+}
+function startEditWitness(id){editingWitness=id;renderTeams();}
+function cancelEditWitness(){editingWitness=null;renderTeams();}
+async function saveEditWitness(id){
+  const w=$('ewWit_'+id).value.trim();
+  if(!w){toast('내용을 입력하세요');return;}
+  const nick=$('ewNick_'+id).value.trim();
+  const{error}=await sb.from('worksheets').update({witness:w,nickname:nick||null}).eq('id',id);
+  if(error){toast('수정 실패 — 다시 시도해 주세요');return;}
+  editingWitness=null;toast('수정되었습니다');load();
+}
+async function deleteTeamRec(classCode,team){
+  if(!confirm('이 모둠의 기록(주제·메시지·역할 등)을 삭제할까요? 개인 목격 기록은 남습니다.'))return;
+  const{error}=await sb.from('moral_teams').delete().eq('class_code',classCode).eq('team',team);
+  if(error){toast('삭제 실패 — 다시 시도해 주세요');return;}
+  editingKey=null;toast('모둠 기록이 삭제되었습니다');load();
+}
+function startEditTeam(k){editingKey=k;renderTeams();}
+function cancelEditTeam(){editingKey=null;editTopic=null;renderTeams();}
+function pickEditTopic(t){
+  editTopic=t;
+  const a=$('etA'),b=$('etB');
+  if(a)a.classList.toggle('pick',t==='A');
+  if(b)b.classList.toggle('pick',t==='B');
+}
+async function saveEditTeam(classCode,team){
+  if(!editTopic){toast('주제 A 또는 B를 골라주세요');return;}
+  if(!$('etMsg').value.trim()){toast('핵심 메시지를 써주세요');return;}
+  const{error}=await sb.from('moral_teams').upsert({
+    class_code:classCode,team:team,
+    top1:$('et1').value.trim(),top2:$('et2').value.trim(),top3:$('et3').value.trim(),
+    topic:editTopic,reason:$('etReason').value.trim(),objection:$('etObj').value.trim(),
+    message:$('etMsg').value.trim(),
+    role_pain:$('etPain').value.trim(),role_bystand:$('etBy').value.trim(),
+    role_resist:$('etRes').value.trim(),role_hope:$('etHope').value.trim(),
+    poster_title:$('etTitle').value.trim(),poster_symbol:$('etSym').value.trim(),
+    poster_question:$('etQ').value.trim(),updated_at:new Date().toISOString()
+  },{onConflict:'class_code,team'});
+  if(error){toast('저장 실패 — 다시 시도해 주세요');return;}
+  editingKey=null;editTopic=null;toast('수정 내용이 저장되었습니다');load();
+}
+function renderEditForm(t){
+  editTopic=t.topic||null;
+  return `<div class="editform">
+    <div class="q">주제</div>
+    <div class="ab">
+      <button class="abtn A${editTopic==='A'?' pick':''}" id="etA" onclick="pickEditTopic('A')"><b>주제 A · 보이는 전쟁</b><span>국제 분쟁 · 난민 · 파괴와 인명 피해</span></button>
+      <button class="abtn B${editTopic==='B'?' pick':''}" id="etB" onclick="pickEditTopic('B')"><b>주제 B · 보이지 않는 전쟁</b><span>혐오 표현 · 온라인 갈등 · 편견 · 따돌림</span></button>
+    </div>
+    <div class="q">우리가 고른 세 가지</div>
+    <div class="row"><input type="text" id="et1" value="${esc(t.top1||'')}" placeholder="①"></div>
+    <div class="row"><input type="text" id="et2" value="${esc(t.top2||'')}" placeholder="②"></div>
+    <div class="row"><input type="text" id="et3" value="${esc(t.top3||'')}" placeholder="③"></div>
+    <div class="q">이 주제를 고른 이유</div>
+    <textarea id="etReason" rows="2">${esc(t.reason||'')}</textarea>
+    <div class="q">반대 의견</div>
+    <input type="text" id="etObj" value="${esc(t.objection||'')}">
+    <div class="q">핵심 메시지</div>
+    <textarea id="etMsg" rows="2">${esc(t.message||'')}</textarea>
+    <div class="q">역할 나누기</div>
+    <div class="row"><input type="text" id="etPain" value="${esc(t.role_pain||'')}" placeholder="고통 담당"><input type="text" id="etBy" value="${esc(t.role_bystand||'')}" placeholder="방관 담당"></div>
+    <div class="row"><input type="text" id="etRes" value="${esc(t.role_resist||'')}" placeholder="저항 담당"><input type="text" id="etHope" value="${esc(t.role_hope||'')}" placeholder="희망 담당"></div>
+    <div class="q">인포그래픽 밑그림</div>
+    <input type="text" id="etTitle" value="${esc(t.poster_title||'')}" placeholder="제목·낱말">
+    <div class="row"><input type="text" id="etSym" value="${esc(t.poster_symbol||'')}" placeholder="상징"><input type="text" id="etQ" value="${esc(t.poster_question||'')}" placeholder="마지막 질문"></div>
+    <div class="row" style="margin-top:14px">
+      <button class="btn" onclick="saveEditTeam('${esc(t.class_code)}','${esc(t.team)}')">저장</button>
+      <button class="btn ghost" onclick="cancelEditTeam()">취소</button>
+    </div>
+  </div>`;
 }
 async function load(){
   const[w,t]=await Promise.all([
@@ -333,11 +453,19 @@ function renderTeams(){
     return `<div class="team"><div class="thead"><b>${esc(k)}</b>
       ${t&&t.topic?`<span class="tp ${t.topic}">${t.topic==='A'?'보이는 전쟁':'보이지 않는 전쟁'}</span>`:''}
       <span class="cnt">개인 기록 ${w.length}건</span>
-      <button class="cp" onclick="copyTeam('${esc(k)}')">모둠 내용 복사</button></div>
+      <button class="cp" onclick="copyTeam('${esc(k)}')">모둠 내용 복사</button>
+      ${isAdmin&&t?`<button class="tedit" onclick="startEditTeam('${esc(k)}')">${editingKey===k?'편집 중':'수정'}</button><button class="tedit danger" onclick="deleteTeamRec('${esc(t.class_code)}','${esc(t.team)}')">삭제</button>`:''}
+      </div>
       <div class="tbody">
       ${t&&t.message?`<div class="msg">"${esc(t.message)}"</div>`:'<div class="small">아직 모둠 기록이 저장되지 않았습니다.</div>'}
       ${meta?`<dl class="meta">${meta}</dl>`:''}
-      ${w.length?`<div class="wl">${w.map(x=>`<p>${esc(x.witness||'')}<span class="who">${esc(x.nickname||'익명')}</span></p>`).join('')}</div>`:''}
+      ${w.length?`<div class="wl">${w.map(x=>isAdmin&&editingWitness===x.id?
+        `<div class="wrow" style="flex-direction:column"><input type="text" id="ewWit_${x.id}" value="${esc(x.witness||'')}" style="margin-bottom:6px">
+         <input type="text" id="ewNick_${x.id}" value="${esc(x.nickname||'')}" placeholder="별칭·번호(선택)" style="margin-bottom:6px">
+         <div class="row" style="margin:0"><button class="btn" style="flex:0 0 auto;padding:8px 16px;font-size:13px" onclick="saveEditWitness('${x.id}')">저장</button><button class="btn ghost" style="flex:0 0 auto;padding:8px 16px;font-size:13px" onclick="cancelEditWitness()">취소</button></div></div>`
+        :`<div class="wrow"><p>${esc(x.witness||'')}<span class="who">${esc(x.nickname||'익명')}</span></p>${isAdmin?`<button class="tedit" onclick="startEditWitness('${x.id}')">수정</button><button class="delx" onclick="deleteWitness('${x.id}')">삭제</button>`:''}</div>`
+        ).join('')}</div>`:''}
+      ${isAdmin&&t&&editingKey===k?renderEditForm(t):''}
       </div></div>`;}).join(''):'<div class="empty">아직 기록이 없습니다.</div>';
 }
 function copyTeam(k){
