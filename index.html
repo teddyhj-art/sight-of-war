@@ -141,13 +141,13 @@ const ADMIN_PW='teacher2026';
   <button class="btn ghost" onclick="backToGate()" style="margin-bottom:14px">← 처음으로</button>
   <div class="tag">개인 기록 · 학습지 1쪽</div>
   <h1>내가 목격한 작은 전쟁</h1>
-  <p class="sub">실제 이름은 쓰지 않습니다. 상황만 씁니다.</p>
+  <p class="sub">이름은 선생님(관리자)만 볼 수 있어요. 다른 친구들에게는 내용만 익명으로 공개됩니다.</p>
   <div class="wsec" style="border-left-color:var(--line)">
-    <div class="q">우리 반 / 우리 모둠</div>
+    <div class="q">우리 반 / 우리 모둠 / 이름</div>
     <div class="row">
       <select id="sClass"></select>
       <select id="sTeam"></select>
-      <input type="text" id="sNick" placeholder="별칭·번호 (선택)">
+      <input type="text" id="sNick" placeholder="이름">
     </div>
   </div>
   <div class="wsec">
@@ -187,29 +187,66 @@ const ADMIN_PW='teacher2026';
     <button data-t="pubClassView">반별</button>
     <button data-t="pubTeam">모둠별</button>
     <button data-t="pubStat">인포그래픽 자료</button>
+    <button data-t="pubTeamOpinion">모둠의견 작성</button>
     <button data-t="pubPrompt">통계신문 만들기</button>
   </div>
   <div class="sec on" id="pubCat"></div>
   <div class="sec" id="pubClassView"></div>
-  <div class="sec" id="pubTeam"></div>
+  <div class="sec" id="pubTeam">
+    <p class="sub">여기는 반과 관계없이 같은 모둠 번호끼리 모아봅니다(예: 모든 반의 1모둠). 우리 반 안에서 모둠별로 보려면 "반별" 탭을 이용하세요.</p>
+    <div id="pubTeamWrap"></div>
+  </div>
   <div class="sec" id="pubStat">
-    <p class="sub">인포그래픽에 넣을 숫자입니다. 그대로 옮겨 적으세요.</p>
+    <div class="wsec" style="border-left-color:var(--line)">
+      <h3>인포그래픽 자료</h3>
+      <p class="small">"카테고리별·반별·모둠별" 탭에서 인상 깊은 기록 옆의 <b>담기</b> 버튼을 누르면 여기에 모입니다. 꼭 우리 모둠 기록이 아니어도 좋아요. 다 모았으면 "모둠의견 작성" 탭에서 "담은 자료 불러오기"를 눌러 정리하세요.</p>
+    </div>
     <div id="pubStatWrap"></div>
+  </div>
+  <div class="sec" id="pubTeamOpinion">
+    <div class="wsec" style="border-left-color:var(--line)">
+      <h3>모둠의견 작성</h3>
+      <p class="small">① 다른 탭에서 자료를 "담기"로 모으세요. ② 아래 "담은 자료 불러오기"를 눌러 가져온 뒤, 함께 분석·토의한 내용을 정리하세요. ③ 저장하면 "통계신문 만들기" 탭에서 자동으로 프롬프트에 반영됩니다. 모둠원 누구나 이어서 수정할 수 있어요.</p>
+    </div>
+    <div class="wsec">
+      <div class="q">우리 반 / 우리 모둠</div>
+      <div class="row">
+        <select id="toClass"></select>
+        <select id="toTeam"></select>
+      </div>
+      <div class="q">신문 제목</div>
+      <input type="text" id="toTitle" placeholder="예: 우리 안의 게르니카">
+      <div class="q">부제</div>
+      <input type="text" id="toSubtitle" placeholder="예: 보이지 않는 전쟁">
+      <div class="q">전체 색상 콘셉트</div>
+      <input type="text" id="toColor" placeholder="예: 다크 그레이, 슬레이트 블루, 연회색">
+      <div class="q">우리가 고른 인상 깊은 데이터 <small>다른 반·모둠 기록이어도 좋아요</small></div>
+      <button type="button" class="btn ghost" onclick="importPickedItems()" style="margin-bottom:8px">📥 담은 자료 불러오기</button>
+      <textarea id="toPicked" rows="3" placeholder="예: 2학년 3반 · 3모둠 — 온라인에서 악성 댓글을 봤지만 아무도 신고하지 않았다는 기록이 가장 많았다"></textarea>
+      <div class="q">그 데이터를 보고 느낀 점</div>
+      <textarea id="toFeel" rows="2" placeholder="예: 다들 방관하고 있다는 게 놀라웠고, 나도 그런 적이 있었는지 돌아보게 되었다"></textarea>
+      <div class="q">모둠 토의 내용과 결론 <small>실천할 수 있는 것까지 정리해보세요</small></div>
+      <textarea id="toDiscuss" rows="3" placeholder="예: 우리는 왜 사람들이 방관하는지 이야기했고, 결론적으로 '먼저 말 걸어주기'를 실천하자고 정했다"></textarea>
+      <div class="q">표어·명언 (카드뉴스 3개) <small>비워두면 위 데이터를 참고해 자동으로 만들어줘요</small></div>
+      <input type="text" id="toQ1" placeholder="인용문 ①">
+      <input type="text" id="toQ2" placeholder="인용문 ②" style="margin-top:10px">
+      <input type="text" id="toQ3" placeholder="인용문 ③" style="margin-top:10px">
+      <div class="row" style="margin-top:14px">
+        <button type="button" class="btn" onclick="saveTeamOpinion()">저장하기</button>
+      </div>
+      <p class="small" id="toStatus" style="margin-top:8px"></p>
+    </div>
   </div>
   <div class="sec" id="pubPrompt">
     <div class="wsec" style="border-left-color:var(--line)">
       <h3>통계신문(인포그래픽) 만들기</h3>
-      <p class="small">① 위 탭에서 참고할 자료를 고르세요(카테고리별·반별·모둠별·인포그래픽 자료). ② 아래 양식을 채우세요 — 비워두면 연하게 보이는 예시 그대로 사용됩니다. ③ "프롬프트 만들기"를 누른 뒤 ChatGPT나 Gemini를 바로 열어서 이미지를 만드세요.</p>
+      <p class="small">"모둠의견 작성" 탭에서 반·모둠을 고르고 내용을 저장해두면, 이 탭을 열 때마다 그 내용과 실제 통계로 프롬프트가 자동으로 만들어집니다. 바로 ChatGPT나 Gemini를 열어 이미지를 만드세요.</p>
     </div>
     <div class="wsec">
-      <div class="q">상단 제목</div>
-      <input type="text" id="ptTitle" placeholder="예: 우리 안의 게르니카">
-      <div class="q">부제</div>
-      <input type="text" id="ptSubtitle" placeholder="예: 보이지 않는 전쟁">
-      <div class="q">전체 색상</div>
-      <input type="text" id="ptColor" placeholder="예: 다크 그레이, 슬레이트 블루, 연회색">
+      <div class="q">현재 선택된 모둠</div>
+      <p class="small" id="ppTeamInfo" style="margin-top:2px"></p>
       <div class="row" style="margin-top:14px">
-        <button type="button" class="btn ghost" onclick="fillPromptData()">프롬프트 만들기</button>
+        <button type="button" class="btn ghost" onclick="fillPromptData()">프롬프트 다시 만들기</button>
         <button type="button" class="btn ghost" onclick="copyPrompt()">프롬프트 복사하기</button>
       </div>
       <div class="row">
@@ -217,7 +254,7 @@ const ADMIN_PW='teacher2026';
         <button type="button" class="btn" onclick="openGemini()">Gemini에서 열기</button>
       </div>
       <p class="small" style="margin-top:8px">ChatGPT는 프롬프트가 자동으로 입력창에 채워집니다(전송 버튼은 직접 눌러주세요). Gemini는 자동 입력을 지원하지 않아 프롬프트를 클립보드에 복사한 뒤 Gemini를 열어드리니, 입력창에 붙여넣기(Ctrl/Cmd+V) 해주세요.</p>
-      <textarea id="pubPromptBox" rows="18" placeholder="위에서 &quot;프롬프트 만들기&quot;를 눌러주세요" style="margin-top:12px;font-size:13.5px"></textarea>
+      <textarea id="pubPromptBox" rows="18" style="margin-top:12px;font-size:13.5px"></textarea>
     </div>
   </div>
 </div>
@@ -233,7 +270,6 @@ const ADMIN_PW='teacher2026';
     <button data-t="rStat">인포그래픽 자료</button>
   </div>
   <div class="sec on" id="rTeams">
-    <div class="guide">📌 <b>모둠 내용 복사</b>를 누르면 우리 모둠 기록이 통째로 복사됩니다 — 패들렛이나 인포그래픽 제작에 그대로 붙여넣으세요.</div>
     <div id="teamWrap"></div>
   </div>
   <div class="sec" id="rStat">
@@ -252,10 +288,12 @@ let isAdmin=false,editingKey=null,editTopic=null,editingWitness=null;
 let lastSubmittedId=null;
 const params=new URLSearchParams(location.search);
 
-['sTeam'].forEach(id=>$(id).innerHTML='<option value="">모둠 선택</option>'+TEAMS.map(t=>`<option>${t}</option>`).join(''));
-['sClass'].forEach(id=>$(id).innerHTML='<option value="">반 선택</option>'+GRADES.map(({g})=>
+['sTeam','toTeam'].forEach(id=>$(id).innerHTML='<option value="">모둠 선택</option>'+TEAMS.map(t=>`<option>${t}</option>`).join(''));
+['sClass','toClass'].forEach(id=>$(id).innerHTML='<option value="">반 선택</option>'+GRADES.map(({g})=>
   `<optgroup label="${g}학년">${CLASSES.filter(c=>c.g===g).map(c=>`<option value="${c.v}">${c.l}</option>`).join('')}</optgroup>`).join(''));
 if(params.get('class')){$('sClass').value=params.get('class');selClass=params.get('class');pubSelClass=params.get('class');}
+$('toClass').onchange=loadTeamOpinion;
+$('toTeam').onchange=loadTeamOpinion;
 
 function go(mode){
   if(mode==='admin'){enterAdmin();return;}
@@ -278,6 +316,7 @@ async function submitStudent(){
   const c=$('sClass').value.trim(),t=$('sTeam').value;
   if(!c){toast('반을 선택하세요');return;}
   if(!t){toast('모둠을 골라주세요');return;}
+  if(!$('sNick').value.trim()){toast('이름을 써주세요');return;}
   if(!$('sWit').value.trim()){toast('목격한 장면을 써주세요');return;}
   $('sBtn').disabled=true;
   const{data,error}=await sb.from('worksheets').insert({
@@ -302,6 +341,7 @@ function editLastSubmission(){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 async function saveEditStudent(){
+  if(!$('sNick').value.trim()){toast('이름을 써주세요');return;}
   if(!$('sWit').value.trim()){toast('목격한 장면을 써주세요');return;}
   $('sBtn').disabled=true;
   const{error}=await sb.from('worksheets').update({
@@ -375,14 +415,11 @@ function pickEditTopic(t){
 }
 async function saveEditTeam(classCode,team){
   if(!editTopic){toast('주제 A 또는 B를 골라주세요');return;}
-  if(!$('etMsg').value.trim()){toast('핵심 메시지를 써주세요');return;}
   const{error}=await sb.from('moral_teams').upsert({
     class_code:classCode,team:team,
     top1:$('et1').value.trim(),top2:$('et2').value.trim(),top3:$('et3').value.trim(),
     topic:editTopic,reason:$('etReason').value.trim(),objection:$('etObj').value.trim(),
     message:$('etMsg').value.trim(),
-    role_pain:$('etPain').value.trim(),role_bystand:$('etBy').value.trim(),
-    role_resist:$('etRes').value.trim(),role_hope:$('etHope').value.trim(),
     poster_title:$('etTitle').value.trim(),poster_symbol:$('etSym').value.trim(),
     poster_question:$('etQ').value.trim(),updated_at:new Date().toISOString()
   },{onConflict:'class_code,team'});
@@ -397,22 +434,19 @@ function renderEditForm(t){
       <button class="abtn A${editTopic==='A'?' pick':''}" id="etA" onclick="pickEditTopic('A')"><b>주제 A · 보이는 전쟁</b><span>국제 분쟁 · 난민 · 파괴와 인명 피해</span></button>
       <button class="abtn B${editTopic==='B'?' pick':''}" id="etB" onclick="pickEditTopic('B')"><b>주제 B · 보이지 않는 전쟁</b><span>혐오 표현 · 온라인 갈등 · 편견 · 따돌림</span></button>
     </div>
-    <div class="q">우리가 고른 세 가지</div>
-    <div class="row"><input type="text" id="et1" value="${esc(t.top1||'')}" placeholder="①"></div>
-    <div class="row"><input type="text" id="et2" value="${esc(t.top2||'')}" placeholder="②"></div>
-    <div class="row"><input type="text" id="et3" value="${esc(t.top3||'')}" placeholder="③"></div>
-    <div class="q">이 주제를 고른 이유</div>
+    <div class="q">표어·명언 (카드뉴스 3개)</div>
+    <div class="row"><input type="text" id="et1" value="${esc(t.top1||'')}" placeholder="인용문 ①"></div>
+    <div class="row"><input type="text" id="et2" value="${esc(t.top2||'')}" placeholder="인용문 ②"></div>
+    <div class="row"><input type="text" id="et3" value="${esc(t.top3||'')}" placeholder="인용문 ③"></div>
+    <div class="q">우리 모둠이 고른 인상 깊은 데이터</div>
     <textarea id="etReason" rows="2">${esc(t.reason||'')}</textarea>
-    <div class="q">반대 의견</div>
+    <div class="q">그 데이터를 보고 느낀 점</div>
     <input type="text" id="etObj" value="${esc(t.objection||'')}">
-    <div class="q">핵심 메시지</div>
+    <div class="q">모둠 토의 내용과 결론</div>
     <textarea id="etMsg" rows="2">${esc(t.message||'')}</textarea>
-    <div class="q">역할 나누기</div>
-    <div class="row"><input type="text" id="etPain" value="${esc(t.role_pain||'')}" placeholder="고통 담당"><input type="text" id="etBy" value="${esc(t.role_bystand||'')}" placeholder="방관 담당"></div>
-    <div class="row"><input type="text" id="etRes" value="${esc(t.role_resist||'')}" placeholder="저항 담당"><input type="text" id="etHope" value="${esc(t.role_hope||'')}" placeholder="희망 담당"></div>
-    <div class="q">인포그래픽 밑그림</div>
-    <input type="text" id="etTitle" value="${esc(t.poster_title||'')}" placeholder="제목·낱말">
-    <div class="row"><input type="text" id="etSym" value="${esc(t.poster_symbol||'')}" placeholder="상징"><input type="text" id="etQ" value="${esc(t.poster_question||'')}" placeholder="마지막 질문"></div>
+    <div class="q">통계신문 사양</div>
+    <input type="text" id="etTitle" value="${esc(t.poster_title||'')}" placeholder="신문 제목">
+    <div class="row"><input type="text" id="etSym" value="${esc(t.poster_symbol||'')}" placeholder="부제"><input type="text" id="etQ" value="${esc(t.poster_question||'')}" placeholder="색상 콘셉트"></div>
     <div class="row" style="margin-top:14px">
       <button class="btn" onclick="saveEditTeam('${esc(t.class_code)}','${esc(t.team)}')">저장</button>
       <button class="btn ghost" onclick="cancelEditTeam()">취소</button>
@@ -450,7 +484,7 @@ function renderWitnessRow(x){
   if(isAdmin&&editingWitness===x.id){
     return `<div class="wrow" style="flex-direction:column"><input type="text" id="ewWit_${x.id}" value="${esc(x.witness||'')}" placeholder="목격한 장면" style="margin-bottom:6px">
       <input type="text" id="ewFeel_${x.id}" value="${esc(x.emotions||'')}" placeholder="느낀 점" style="margin-bottom:6px">
-      <input type="text" id="ewNick_${x.id}" value="${esc(x.nickname||'')}" placeholder="별칭·번호(선택)" style="margin-bottom:6px">
+      <input type="text" id="ewNick_${x.id}" value="${esc(x.nickname||'')}" placeholder="이름" style="margin-bottom:6px">
       <div class="row" style="margin:0"><button class="btn" style="flex:0 0 auto;padding:8px 16px;font-size:13px" onclick="saveEditWitness('${x.id}')">저장</button><button class="btn ghost" style="flex:0 0 auto;padding:8px 16px;font-size:13px" onclick="cancelEditWitness()">취소</button></div></div>`;
   }
   return `<div class="wrow"><p>${esc(x.witness||'')}${isAdmin?`<span class="who">${esc(x.nickname||'익명')}</span>`:''}${x.emotions?`<br><span style="color:var(--ash);font-size:12px">→ 느낀 점: ${esc(x.emotions)}</span>`:''}</p>${isAdmin?`<button class="tedit" onclick="startEditWitness('${x.id}')">수정</button><button class="delx" onclick="deleteWitness('${x.id}')">삭제</button>`:''}</div>`;
@@ -469,37 +503,19 @@ function renderTeams(){
   const keys=Object.keys(g).sort((a,b)=>a.localeCompare(b,'ko',{numeric:true}));
   $('teamWrap').innerHTML=keys.length?keys.map(k=>{
     const t=g[k].t,w=g[k].w;
-    const meta=t?[['고른 이유',t.reason],['반대 의견',t.objection],['세 가지',[t.top1,t.top2,t.top3].filter(Boolean).join(' · ')],
-      ['역할',[t.role_pain&&'고통 '+t.role_pain,t.role_bystand&&'방관 '+t.role_bystand,t.role_resist&&'저항 '+t.role_resist,t.role_hope&&'희망 '+t.role_hope].filter(Boolean).join(' / ')],
-      ['포스터 제목',t.poster_title],['상징',t.poster_symbol],['마지막 질문',t.poster_question]]
+    const meta=t?[['인상 깊은 데이터',t.reason],['느낀 점',t.objection],['표어·명언',[t.top1,t.top2,t.top3].filter(Boolean).join(' · ')],
+      ['신문 제목',t.poster_title],['부제',t.poster_symbol],['색상 콘셉트',t.poster_question]]
       .filter(x=>x[1]).map(x=>`<dt>${x[0]}</dt><dd>${esc(x[1])}</dd>`).join(''):'';
     return `<div class="team"><div class="thead"><b>${esc(k)}</b>
-      ${t&&t.topic?`<span class="tp ${t.topic}">${t.topic==='A'?'보이는 전쟁':'보이지 않는 전쟁'}</span>`:''}
       <span class="cnt">개인 기록 ${w.length}건</span>
-      <button class="cp" onclick="copyTeam('${esc(k)}')">모둠 내용 복사</button>
       ${isAdmin&&t?`<button class="tedit" onclick="startEditTeam('${esc(k)}')">${editingKey===k?'편집 중':'수정'}</button><button class="tedit danger" onclick="deleteTeamRec('${esc(t.class_code)}','${esc(t.team)}')">삭제</button>`:''}
       </div>
       <div class="tbody">
-      ${t&&t.message?`<div class="msg">"${esc(t.message)}"</div>`:'<div class="small">아직 모둠 기록이 저장되지 않았습니다.</div>'}
+      ${t&&t.message?`<div class="msg">${esc(t.message).replace(/\n/g,'<br>')}</div>`:'<div class="small">아직 모둠의견이 저장되지 않았습니다.</div>'}
       ${meta?`<dl class="meta">${meta}</dl>`:''}
       ${w.length?renderWitnessList(w):''}
       ${isAdmin&&t&&editingKey===k?renderEditForm(t):''}
       </div></div>`;}).join(''):'<div class="empty">아직 기록이 없습니다.</div>';
-}
-function copyTeam(k){
-  const w=byC(ws).filter(r=>((showPrefix()?classPrefix(r.class_code):'')+r.team)===k);
-  const t=byC(tm).find(r=>((showPrefix()?classPrefix(r.class_code):'')+r.team)===k);
-  let s=`[${k}] 우리 모둠의 전쟁\n\n`;
-  if(t){
-    s+=`주제: ${t.topic==='A'?'보이는 전쟁':'보이지 않는 전쟁'}\n핵심 메시지: "${t.message||''}"\n`;
-    if(t.reason)s+=`고른 이유: ${t.reason}\n`;
-    const three=[t.top1,t.top2,t.top3].filter(Boolean);
-    if(three.length)s+=`우리가 고른 세 가지: ${three.join(' · ')}\n`;
-    s+=`\n[인포그래픽 밑그림]\n제목: ${t.poster_title||''}\n상징: ${t.poster_symbol||''}\n마지막 질문: ${t.poster_question||''}\n`;
-    s+=`역할: 고통 ${t.role_pain||''} / 방관 ${t.role_bystand||''} / 저항 ${t.role_resist||''} / 희망 ${t.role_hope||''}\n`;
-  }
-  if(w.length){s+=`\n[우리가 목격한 장면 ${w.length}건]\n`;w.forEach((x,i)=>{s+=`${i+1}. (${CATS[x.category||0]}) ${x.witness||''}${x.emotions?` — 느낀 점: ${x.emotions}`:''}\n`;});}
-  navigator.clipboard.writeText(s).then(()=>toast('복사 완료')).catch(()=>toast('복사 실패'));
 }
 function renderStat(){
   const W=byC(ws),T=byC(tm);
@@ -525,20 +541,27 @@ const pubByC=a=>{
   if(pubSelClass==='기타')return a.filter(x=>!CLASS_SET.has(x.class_code));
   return a.filter(x=>x.class_code===pubSelClass);
 };
-let lastPubTab='pubCat';
+let pubInited=false;
 function initPublic(){
-  document.querySelectorAll('#pubTabs button').forEach(b=>b.onclick=()=>{
-    document.querySelectorAll('#pubTabs button').forEach(x=>x.classList.remove('on'));
-    document.querySelectorAll('#public .sec').forEach(s=>s.classList.remove('on'));
-    b.classList.add('on');$(b.dataset.t).classList.add('on');
-    if(b.dataset.t!=='pubPrompt')lastPubTab=b.dataset.t;});
+  if(!pubInited){
+    document.querySelectorAll('#pubTabs button').forEach(b=>b.onclick=()=>{
+      document.querySelectorAll('#pubTabs button').forEach(x=>x.classList.remove('on'));
+      document.querySelectorAll('#public .sec').forEach(s=>s.classList.remove('on'));
+      b.classList.add('on');$(b.dataset.t).classList.add('on');
+      if(b.dataset.t==='pubPrompt')fillPromptData();
+    });
+    sb.channel('pub')
+      .on('postgres_changes',{event:'*',schema:'public',table:'worksheets'},loadPublic)
+      .on('postgres_changes',{event:'*',schema:'public',table:'moral_teams'},loadPublic).subscribe();
+    pubInited=true;
+  }
   loadPublic();
-  sb.channel('pub')
-    .on('postgres_changes',{event:'*',schema:'public',table:'worksheets'},loadPublic).subscribe();
 }
 async function loadPublic(){
-  const{data}=await sb.from('worksheets').select('*').order('created_at');
-  ws=data||[];
+  const[w,t]=await Promise.all([
+    sb.from('worksheets').select('*').order('created_at'),
+    sb.from('moral_teams').select('*')]);
+  ws=w.data||[];tm=t.data||[];
   renderPubClassBar();renderPubCat();renderPubClassView();renderPubTeam();renderPubStat();
 }
 function renderPubClassBar(){
@@ -551,12 +574,21 @@ function renderPubClassBar(){
     return `<button class="${c===pubSelClass?'on':''}" onclick="pickPubClass('${esc(c)}')">${label}</button>`;
   }).join('');
 }
-function pickPubClass(c){pubSelClass=c;renderPubClassBar();renderPubCat();renderPubTeam();renderPubStat();}
+function pickPubClass(c){pubSelClass=c;renderPubClassBar();renderPubCat();renderPubClassView();renderPubTeam();renderPubStat();}
+let pickedIds=new Set();
+function togglePick(id){
+  if(pickedIds.has(id))pickedIds.delete(id);else pickedIds.add(id);
+  renderPubCat();renderPubClassView();renderPubTeam();renderPubStat();
+}
 function publicRowHtml(x){
   const tag=[CLASS_LABEL[x.class_code]||x.class_code,x.team].filter(Boolean).join(' · ');
+  const id=String(x.id),picked=pickedIds.has(id);
   return `<div class="msg" style="margin-top:10px;font-weight:400">${esc(x.witness||'')}
     ${x.emotions?`<div style="margin-top:8px;font-size:13px;color:#5a5a5a">→ 느낀 점: ${esc(x.emotions)}</div>`:''}
-    <div style="margin-top:8px;font-size:11.5px;color:#8a8a8a">${esc(tag)}</div></div>`;
+    <div style="margin-top:8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <span style="font-size:11.5px;color:#8a8a8a">${esc(tag)}</span>
+      <button type="button" onclick="togglePick('${esc(id)}')" style="font-size:11px;font-weight:700;padding:4px 10px;border-radius:12px;border:1px solid ${picked?'var(--ember)':'#ccc'};background:${picked?'var(--ember)':'#fff'};color:${picked?'#fff':'#555'};cursor:pointer">${picked?'담음 ✓':'담기'}</button>
+    </div></div>`;
 }
 function renderPubCat(){
   const list=pubByC(ws);
@@ -571,8 +603,15 @@ function renderPubClassView(){
   ws.forEach(x=>{const k=CLASS_LABEL[x.class_code]||(x.class_code||'미확인')+'(확인필요)';(groups[k]=groups[k]||[]).push(x);});
   const order=[...CLASSES.map(c=>c.l),...Object.keys(groups).filter(k=>!CLASSES.some(c=>c.l===k))];
   const keys=order.filter(k=>groups[k]&&groups[k].length);
-  $('pubClassView').innerHTML=keys.length?keys.map(k=>
-    `<div class="wsec"><h3>${esc(k)} <small>${groups[k].length}건</small></h3>${groups[k].map(publicRowHtml).join('')}</div>`).join('')
+  $('pubClassView').innerHTML=keys.length?keys.map(k=>{
+    const list=groups[k];
+    const byTeam={};
+    list.forEach(x=>{const tk=x.team||'미정';(byTeam[tk]=byTeam[tk]||[]).push(x);});
+    const torder=[...TEAMS,...Object.keys(byTeam).filter(tk=>!TEAMS.includes(tk))].filter(tk=>byTeam[tk]&&byTeam[tk].length);
+    return `<div class="wsec"><h3>${esc(k)} <small>${list.length}건</small></h3>
+      ${torder.map(tk=>`<div class="q" style="margin-top:14px">${esc(tk)} <small>${byTeam[tk].length}건</small></div>${byTeam[tk].map(publicRowHtml).join('')}`).join('')}
+    </div>`;
+  }).join('')
     :'<div class="empty">기록이 없습니다.</div>';
 }
 function renderPubTeam(){
@@ -581,35 +620,93 @@ function renderPubTeam(){
   list.forEach(x=>{const k=x.team||'미정';(groups[k]=groups[k]||[]).push(x);});
   const order=[...TEAMS,...Object.keys(groups).filter(k=>!TEAMS.includes(k))];
   const keys=order.filter(k=>groups[k]&&groups[k].length);
-  $('pubTeam').innerHTML=keys.length?keys.map(k=>
+  $('pubTeamWrap').innerHTML=keys.length?keys.map(k=>
     `<div class="wsec"><h3>${esc(k)} <small>${groups[k].length}건</small></h3>${groups[k].map(publicRowHtml).join('')}</div>`).join('')
     :'<div class="empty">기록이 없습니다.</div>';
 }
 function renderPubStat(){
-  const W=pubByC(ws);
-  if(!W.length){$('pubStatWrap').innerHTML='<div class="empty">집계할 기록이 없습니다.</div>';return;}
-  const cat={};W.forEach(r=>cat[r.category||0]=(cat[r.category||0]||0)+1);
-  const max=Math.max(1,...Object.values(cat));
-  $('pubStatWrap').innerHTML=`
-  <div class="bigstat"><div><b>${W.length}</b><span>목격 기록</span></div></div>
-  <div class="bars">${CATS.map((c,i)=>{const v=cat[i]||0;
-    return `<div class="brow"><span>${c}</span><span><span class="fill" style="width:${Math.round(v/max*100)}%"></span></span><span class="n">${v}</span></div>`;}).join('')}</div>`;
+  const items=ws.filter(x=>pickedIds.has(String(x.id)));
+  if(!items.length){$('pubStatWrap').innerHTML='<div class="empty">아직 담은 자료가 없습니다 — 다른 탭에서 "담기" 버튼을 눌러보세요.</div>';return;}
+  $('pubStatWrap').innerHTML=`<div class="wsec"><h3>담은 자료 <small>${items.length}건</small></h3>
+    ${items.map(x=>{
+      const tag=[CLASS_LABEL[x.class_code]||x.class_code,x.team].filter(Boolean).join(' · ');
+      return `<div class="wrow"><p>(${esc(CATS[x.category||0]||CATS[0])}) ${esc(x.witness||'')}${x.emotions?`<br><span style="color:var(--ash);font-size:12px">→ 느낀 점: ${esc(x.emotions)}</span>`:''}<br><span class="who">${esc(tag)}</span></p><button class="delx" onclick="togglePick('${esc(String(x.id))}')">빼기</button></div>`;
+    }).join('')}
+  </div>`;
+}
+function importPickedItems(){
+  const items=ws.filter(x=>pickedIds.has(String(x.id)));
+  if(!items.length){toast('담은 자료가 없습니다 — 다른 탭에서 먼저 담아주세요');return;}
+  const text=items.map(x=>{
+    const tag=[CLASS_LABEL[x.class_code]||x.class_code,x.team].filter(Boolean).join(' · ');
+    return `${tag} — (${CATS[x.category||0]||CATS[0]}) ${x.witness||''}${x.emotions?` (느낀 점: ${x.emotions})`:''}`;
+  }).join('\n');
+  $('toPicked').value=text;
+  toast(`${items.length}건을 불러왔습니다`);
 }
 
-/* 통계신문 만들기 — AI 이미지 프롬프트 */
-function currentPubTabText(){
-  const el=$(lastPubTab);
-  return el?el.innerText.trim():'';
+/* 모둠의견 작성 — 다른 반·모둠 자료도 포함해 팀이 직접 분석·토의한 내용 */
+function loadTeamOpinion(){
+  const c=$('toClass').value,t=$('toTeam').value;
+  if(!c||!t){$('toStatus').textContent='';return;}
+  const rec=tm.find(x=>x.class_code===c&&x.team===t);
+  $('toTitle').value=rec&&rec.poster_title||'';
+  $('toSubtitle').value=rec&&rec.poster_symbol||'';
+  $('toColor').value=rec&&rec.poster_question||'';
+  $('toPicked').value=rec&&rec.reason||'';
+  $('toFeel').value=rec&&rec.objection||'';
+  $('toDiscuss').value=rec&&rec.message||'';
+  $('toQ1').value=rec&&rec.top1||'';
+  $('toQ2').value=rec&&rec.top2||'';
+  $('toQ3').value=rec&&rec.top3||'';
+  $('toStatus').textContent=rec?'저장된 내용을 불러왔습니다 — 이어서 수정할 수 있어요.':'아직 저장된 내용이 없습니다 — 새로 작성해 주세요.';
 }
-const fieldOrPlaceholder=id=>{
-  const el=$(id);
-  return el.value.trim()||el.placeholder.replace(/^예:\s*/,'');
-};
+async function saveTeamOpinion(){
+  const c=$('toClass').value,t=$('toTeam').value;
+  if(!c){toast('반을 선택하세요');return;}
+  if(!t){toast('모둠을 골라주세요');return;}
+  const rec={
+    class_code:c,team:t,topic:'B',
+    poster_title:$('toTitle').value.trim(),
+    poster_symbol:$('toSubtitle').value.trim(),
+    poster_question:$('toColor').value.trim(),
+    reason:$('toPicked').value.trim(),
+    objection:$('toFeel').value.trim(),
+    message:$('toDiscuss').value.trim(),
+    top1:$('toQ1').value.trim(),top2:$('toQ2').value.trim(),top3:$('toQ3').value.trim(),
+    updated_at:new Date().toISOString()
+  };
+  const{error}=await sb.from('moral_teams').upsert(rec,{onConflict:'class_code,team'});
+  if(error){toast('저장 실패 — 다시 시도해 주세요');return;}
+  const idx=tm.findIndex(x=>x.class_code===c&&x.team===t);
+  if(idx>=0)tm[idx]={...tm[idx],...rec};else tm.push(rec);
+  toast('모둠의견이 저장되었습니다');
+  $('toStatus').textContent='방금 저장되었습니다.';
+}
+
+/* 통계신문 만들기 — AI 이미지 프롬프트 (모둠의견 + 실제 통계로 자동 생성) */
 function buildPrompt(){
-  const title=fieldOrPlaceholder('ptTitle');
-  const subtitle=fieldOrPlaceholder('ptSubtitle');
-  const color=fieldOrPlaceholder('ptColor');
-  const data=currentPubTabText();
+  const c=$('toClass').value,t=$('toTeam').value;
+  const rec=(c&&t)?tm.find(x=>x.class_code===c&&x.team===t):null;
+  const title=(rec&&rec.poster_title&&rec.poster_title.trim())||'우리 안의 게르니카';
+  const subtitle=(rec&&rec.poster_symbol&&rec.poster_symbol.trim())||'보이지 않는 전쟁';
+  const color=(rec&&rec.poster_question&&rec.poster_question.trim())||'다크 그레이, 슬레이트 블루, 연회색';
+  const picked=(rec&&rec.reason&&rec.reason.trim())||'';
+  const feel=(rec&&rec.objection&&rec.objection.trim())||'';
+  const discuss=(rec&&rec.message&&rec.message.trim())||'';
+  const quotes=[rec&&rec.top1,rec&&rec.top2,rec&&rec.top3].map(x=>(x||'').trim()).filter(Boolean);
+
+  const scope=pubByC(ws);
+  const cat={};scope.forEach(x=>cat[x.category||0]=(cat[x.category||0]||0)+1);
+  const statLines=CATS.map((cn,i)=>`- ${cn}: ${cat[i]||0}건`).join('\n');
+  const scopeLabel=pubSelClass==='전체'?'학급 전체':pubSelClass==='기타'?'기타(반 확인 필요)':(CLASS_LABEL[pubSelClass]||pubSelClass);
+
+  const quoteBlock=quotes.length?quotes.map((q,i)=>`카드 ${i+1}: "${q}"`).join('\n')
+    :'(아래 데이터를 참고해 카드뉴스에 넣을 인용문 3개를 만들어줘)';
+  const pickedBlock=picked?`\n[우리 모둠이 고른 인상 깊은 데이터]\n${picked}\n`:'';
+  const feelBlock=feel?`\n[그 데이터를 보고 느낀 점]\n${feel}\n`:'';
+  const discussBlock=discuss?`\n[모둠 토의 내용과 결론]\n${discuss}\n`:'';
+
   return `중학교 도덕 수업용 A4 통계신문(인포그래픽) 디자인을 이미지로 만들어줘.
 
 [디자인 사양]
@@ -618,16 +715,23 @@ function buildPrompt(){
 - 전체 색상: ${color} — 차분하고 성찰적인 느낌
 - 지면 구성 (위·중간·아래 3단):
   · 상단: 큰 제목 + 사설 글 상자 + 소외와 갈등을 표현한 라인 아트 일러스트
-  · 중간: 아래 실제 데이터를 반영한 인포그래픽 3종(막대그래프·픽토그램·파이차트 등, 데이터 성격에 맞게 배치)
-  · 하단: 인용문이 적힌 카드 뉴스 형태의 상자 3개 + 실천 수칙 리스트
+  · 중간: 아래 실제 통계를 반영한 인포그래픽 3종(막대그래프·픽토그램·파이차트 등, 데이터 성격에 맞게 배치)
+  · 하단: 아래 인용문으로 만든 카드 뉴스 형태의 상자 3개 + 아래 토의 내용에서 뽑은 실천 수칙 리스트
 - 스타일: 깔끔한 벡터 스타일의 신문 레이아웃, 고화질 그래픽 디자인
 
-[우리가 실제로 모은 자료 — 이 안의 실제 수치와 문장을 위 구성에 반영해줘]
-${data||'(위 탭에서 자료를 먼저 확인한 뒤 다시 눌러주세요)'}
+[집계 데이터 — ${scopeLabel}, 총 ${scope.length}건]
+${statLines}
+${pickedBlock}${feelBlock}${discussBlock}
+[카드뉴스 인용문 3개]
+${quoteBlock}
 
 실제 이름이나 특정 개인을 알아볼 수 있는 표현은 넣지 마.`;
 }
 function fillPromptData(){
+  const c=$('toClass').value,t=$('toTeam').value;
+  $('ppTeamInfo').textContent=(c&&t)
+    ?`${CLASS_LABEL[c]||c} · ${t} 의 저장된 모둠의견으로 만들어졌습니다.`
+    :'선택된 모둠이 없어 예시 제목·부제로 만들어졌습니다. "모둠의견 작성" 탭에서 반·모둠을 고르고 저장하면 자동으로 반영돼요.';
   $('pubPromptBox').value=buildPrompt();
   toast('프롬프트를 만들었습니다');
 }
