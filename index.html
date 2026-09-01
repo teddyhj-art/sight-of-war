@@ -126,7 +126,7 @@ const ADMIN_PW='teacher2026';
 
 <!-- 게이트 -->
 <div class="gate" id="gate">
-  <div class="tag">도덕 수업</div>
+  <div class="tag">도덕x미술수업</div>
   <h1>우리 안의 게르니카</h1>
   <p class="sub">보이지 않는 전쟁을 목격하다</p>
   <div class="roles">
@@ -550,18 +550,16 @@ function renderTeams(){
 function renderStat(){
   const W=byC(ws),T=byC(tm);
   if(!W.length&&!T.length){$('statWrap').innerHTML='<div class="empty">집계할 기록이 없습니다.</div>';return;}
-  const cat={};W.forEach(r=>cat[r.category||0]=(cat[r.category||0]||0)+1);
-  const max=Math.max(1,...Object.values(cat));
-  const A=T.filter(x=>x.topic==='A').length,B=T.filter(x=>x.topic==='B').length;
+  const cat3=[['학교안에서',0],['온라인에서',0],['기타(가정·이웃·세계)',0]];
+  W.forEach(r=>{const c=r.category||0;cat3[c===0?0:c===1?1:2][1]++;});
+  const max=Math.max(1,...cat3.map(x=>x[1]));
   $('statWrap').innerHTML=`
   <div class="bigstat">
     <div><b>${W.length}</b><span>목격 기록</span></div>
     <div><b>${new Set(W.map(r=>r.team)).size||T.length}</b><span>모둠</span></div>
-    <div><b>${A}</b><span>보이는 전쟁</span></div>
-    <div><b>${B}</b><span>보이지 않는 전쟁</span></div>
   </div>
-  <div class="bars">${CATS.map((c,i)=>{const v=cat[i]||0;
-    return `<div class="brow"><span>${c}</span><span><span class="fill" style="width:${Math.round(v/max*100)}%"></span></span><span class="n">${v}</span></div>`;}).join('')}</div>
+  <div class="bars">${cat3.map(([c,v])=>
+    `<div class="brow"><span>${esc(c)}</span><span><span class="fill" style="width:${Math.round(v/max*100)}%"></span></span><span class="n">${v}</span></div>`).join('')}</div>
   ${T.filter(x=>x.message).length?`<div class="guide" style="margin-top:18px"><b>모둠 메시지 모음</b><br>${T.filter(x=>x.message).map(x=>`· ${esc(x.team)} "${esc(x.message)}"`).join('<br>')}</div>`:''}`;
 }
 
@@ -629,25 +627,27 @@ function importPickedItems(){
   toast(`${items.length}건을 불러왔습니다`);
 }
 function renderGalleryTeams(){
-  const teams=tm.filter(t=>(t.poster_title||'').trim()||(t.poster_symbol||'').trim()||(t.reason||'').trim()||(t.objection||'').trim()||(t.message||'').trim()||(t.top1||'').trim()||(t.top2||'').trim()||(t.top3||'').trim());
+  const teams=tm.filter(t=>(t.poster_title||'').trim()||(t.poster_symbol||'').trim()||(t.reason||'').trim()||(t.objection||'').trim()||(t.message||'').trim());
   if(!teams.length){$('galTeams').innerHTML='<div class="empty">아직 등록된 모둠 기록이 없습니다.</div>';return;}
+  const messages=teams.map(t=>(t.message||'').trim()).filter(Boolean);
+  const msgBlock=messages.length?`<div class="wsec" style="border-left-color:var(--line)"><h3>메시지 모음</h3>
+    <div class="wl">${messages.map(m=>`<p>${esc(m).replace(/\n/g,' ')}</p>`).join('')}</div>
+  </div>`:'';
   const sorted=[...teams].sort((a,b)=>{
     const ka=(CLASS_LABEL[a.class_code]||a.class_code)+a.team,kb=(CLASS_LABEL[b.class_code]||b.class_code)+b.team;
     return ka.localeCompare(kb,'ko',{numeric:true});
   });
-  $('galTeams').innerHTML=sorted.map(t=>{
+  const cards=sorted.map(t=>{
     const label=[CLASS_LABEL[t.class_code]||t.class_code,t.team].filter(Boolean).join(' · ');
-    const quotes=[t.top1,t.top2,t.top3].map(x=>(x||'').trim()).filter(Boolean);
     const meta=[['인상 깊은 데이터',t.reason],['느낀 점',t.objection]]
       .filter(x=>x[1]).map(x=>`<dt>${x[0]}</dt><dd>${esc(x[1])}</dd>`).join('');
     return `<div class="team"><div class="thead"><b>${esc(label)}</b></div>
       <div class="tbody">
       ${t.poster_title?`<div class="msg" style="font-family:var(--serif);font-weight:700">${esc(t.poster_title)}${t.poster_symbol?`<div style="font-size:13px;font-weight:400;margin-top:4px;color:#5a5a5a">${esc(t.poster_symbol)}</div>`:''}</div>`:''}
-      ${t.message?`<p class="small" style="margin-top:12px;color:var(--paper)">${esc(t.message).replace(/\n/g,'<br>')}</p>`:''}
       ${meta?`<dl class="meta">${meta}</dl>`:''}
-      ${quotes.length?`<div class="wl">${quotes.map(q=>`<p>"${esc(q)}"</p>`).join('')}</div>`:''}
       </div></div>`;
   }).join('');
+  $('galTeams').innerHTML=msgBlock+cards;
 }
 
 /* 모둠의견 작성 — 다른 반·모둠 자료도 포함해 팀이 직접 분석·토의한 내용 */
