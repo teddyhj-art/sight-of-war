@@ -267,10 +267,7 @@ const ADMIN_PW='teacher2026';
   </div>
   <div class="sec on" id="galTeams"></div>
   <div class="sec" id="galStat">
-    <div class="wsec" style="border-left-color:var(--line)">
-      <h3>인포그래픽 자료</h3>
-      <p class="small">"우리의 기록"의 온라인에서·학교에서·기타 탭에서 <b>담기</b> 버튼을 누른 자료가 여기에 모입니다.</p>
-    </div>
+    <p class="sub">인포그래픽에 넣을 숫자입니다. 그대로 옮겨 적으세요.</p>
     <div id="galStatWrap"></div>
   </div>
 </div>
@@ -547,13 +544,12 @@ function renderTeams(){
       ${isAdmin&&t&&editingKey===k?renderEditForm(t):''}
       </div></div>`;}).join(''):'<div class="empty">아직 기록이 없습니다.</div>';
 }
-function renderStat(){
-  const W=byC(ws),T=byC(tm);
-  if(!W.length&&!T.length){$('statWrap').innerHTML='<div class="empty">집계할 기록이 없습니다.</div>';return;}
+function renderStatHTML(W,T){
+  if(!W.length&&!T.length)return '<div class="empty">집계할 기록이 없습니다.</div>';
   const cat3=[['학교안에서',0],['온라인에서',0],['기타(가정·이웃·세계)',0]];
   W.forEach(r=>{const c=r.category||0;cat3[c===0?0:c===1?1:2][1]++;});
   const max=Math.max(1,...cat3.map(x=>x[1]));
-  $('statWrap').innerHTML=`
+  return `
   <div class="bigstat">
     <div><b>${W.length}</b><span>목격 기록</span></div>
     <div><b>${new Set(W.map(r=>r.team)).size||T.length}</b><span>모둠</span></div>
@@ -561,6 +557,9 @@ function renderStat(){
   <div class="bars">${cat3.map(([c,v])=>
     `<div class="brow"><span>${esc(c)}</span><span><span class="fill" style="width:${Math.round(v/max*100)}%"></span></span><span class="n">${v}</span></div>`).join('')}</div>
   ${T.filter(x=>x.message).length?`<div class="guide" style="margin-top:18px"><b>모둠 메시지 모음</b><br>${T.filter(x=>x.message).map(x=>`· ${esc(x.team)} "${esc(x.message)}"`).join('<br>')}</div>`:''}`;
+}
+function renderStat(){
+  $('statWrap').innerHTML=renderStatHTML(byC(ws),byC(tm));
 }
 
 /* 우리의 기록 + 데이터 모아보기 — 전체 공개, 이름·반·모둠 비공개(관리자 모드에서만 확인 가능) */
@@ -613,11 +612,7 @@ function renderPubOnline(){renderPubGroup('pubOnline',ws.filter(x=>(x.category||
 function renderPubSchool(){renderPubGroup('pubSchool',ws.filter(x=>(x.category||0)===0));}
 function renderPubEtc(){renderPubGroup('pubEtc',ws.filter(x=>{const c=x.category||0;return c===2||c===3;}));}
 function renderGalleryStat(){
-  const items=ws.filter(x=>pickedIds.has(String(x.id)));
-  if(!items.length){$('galStatWrap').innerHTML='<div class="empty">아직 담은 자료가 없습니다 — "우리의 기록"에서 "담기" 버튼을 눌러보세요.</div>';return;}
-  $('galStatWrap').innerHTML=`<div class="wsec"><h3>담은 자료 <small>${items.length}건</small></h3>
-    ${items.map(x=>`<div class="wrow"><p>(${esc(CATS[x.category||0]||CATS[0])}) ${esc(x.witness||'')}${x.emotions?`<br><span style="color:var(--ash);font-size:12px">→ 느낀 점: ${esc(x.emotions)}</span>`:''}</p><button class="delx" onclick="togglePick('${esc(String(x.id))}')">빼기</button></div>`).join('')}
-  </div>`;
+  $('galStatWrap').innerHTML=renderStatHTML(ws,tm);
 }
 function importPickedItems(){
   const items=ws.filter(x=>pickedIds.has(String(x.id)));
